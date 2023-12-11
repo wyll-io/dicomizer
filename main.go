@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/suyashkumar/dicom"
 	"github.com/urfave/cli/v2"
+	"github.com/wyll-io/dicomizer/internal/glacier"
 	"github.com/wyll-io/dicomizer/pkg/anonymize"
 )
 
@@ -19,10 +20,8 @@ var app = &cli.App{
 	Name:    "dicomizer",
 	Version: "0.1.0",
 	Before: func(ctx *cli.Context) error {
-		for _, arg := range ctx.Args().Slice() {
-			if arg == "--help" || arg == "-h" {
-				return nil
-			}
+		if ctx.Bool("help") {
+			return nil
 		}
 
 		var err error
@@ -37,7 +36,6 @@ var app = &cli.App{
 		{
 			Name:      "anonymize",
 			ArgsUsage: "<input_file> [output_dicom]",
-			Flags:     []cli.Flag{},
 			Action: func(ctx *cli.Context) error {
 				if !ctx.Args().Present() {
 					return fmt.Errorf("missing input file")
@@ -66,6 +64,25 @@ var app = &cli.App{
 				// ! Disable VR verification for PixelData in case it is OB instead of OW and
 				// ! not a little endian.
 				return dicom.Write(f, dataset, dicom.SkipVRVerification())
+			},
+		},
+		{
+			Name:        "upload",
+			ArgsUsage:   "<input_file>...",
+			Description: "Upload DICOM files to AWS Glacier",
+			Action: func(ctx *cli.Context) error {
+				if !ctx.Args().Present() {
+					return fmt.Errorf("missing input file")
+				}
+
+				client := glacier.NewClient(awsCfg)
+				for _, arg := range ctx.Args().Slice() {
+					client.UploadFile(ctx.Context, arg, glacier.UploadOpts{
+						VaultName: "dicomizer",
+					})
+				}
+
+				return nil
 			},
 		},
 	},
