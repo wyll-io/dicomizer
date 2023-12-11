@@ -82,13 +82,11 @@ func ReplaceElementValue(el *dicom.Element) error {
 			seqs := el.Value.GetValue().([]*dicom.SequenceItemValue)
 			for _, sq := range seqs {
 				subElements := sq.GetValue().([]*dicom.Element)
-				fmt.Printf("before => subElements: %v\n", subElements)
 				for _, subEl := range subElements {
 					if err := ReplaceElementValue(subEl); err != nil {
 						return err
 					}
 				}
-				fmt.Printf("after => subElements: %v\n", subElements)
 			}
 
 			v, err = dicom.NewValue(seqs)
@@ -154,13 +152,11 @@ func EmptyElementValue(el *dicom.Element) error {
 			seqs := el.Value.GetValue().([]*dicom.SequenceItemValue)
 			for _, sq := range seqs {
 				subElements := sq.GetValue().([]*dicom.Element)
-				fmt.Printf("before => subElements: %v\n", subElements)
 				for _, subEl := range subElements {
 					if err := EmptyElementValue(subEl); err != nil {
 						return err
 					}
 				}
-				fmt.Printf("after => subElements: %v\n", subElements)
 			}
 
 			v, err = dicom.NewValue(seqs)

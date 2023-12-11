@@ -4,14 +4,35 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/suyashkumar/dicom"
 	"github.com/urfave/cli/v2"
-	anonimize "github.com/wyll-io/dicomizer/pkg/anonymize"
+	"github.com/wyll-io/dicomizer/pkg/anonymize"
+)
+
+var (
+	awsCfg aws.Config
 )
 
 var app = &cli.App{
 	Name:    "dicomizer",
 	Version: "0.1.0",
+	Before: func(ctx *cli.Context) error {
+		for _, arg := range ctx.Args().Slice() {
+			if arg == "--help" || arg == "-h" {
+				return nil
+			}
+		}
+
+		var err error
+		awsCfg, err = config.LoadDefaultConfig(ctx.Context)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	},
 	Commands: []*cli.Command{
 		{
 			Name:      "anonymize",
@@ -27,7 +48,7 @@ var app = &cli.App{
 					return err
 				}
 
-				if err := anonimize.Anonymize(&dataset); err != nil {
+				if err := anonymize.Anonymize(&dataset); err != nil {
 					return err
 				}
 
@@ -40,6 +61,7 @@ var app = &cli.App{
 				if err != nil {
 					return err
 				}
+				defer f.Close()
 
 				// ! Disable VR verification for PixelData in case it is OB instead of OW and
 				// ! not a little endian.
