@@ -1,8 +1,8 @@
-package models
+package database
 
 import "time"
 
-type Patient struct {
+type patient struct {
 	UUID      string    `dynamodbav:"uuid"`
 	Firstname string    `dynamodbav:"firstname"`
 	Lastname  string    `dynamodbav:"lastname"`
@@ -12,7 +12,7 @@ type Patient struct {
 	DeletedAt time.Time `dynamodbav:"deleted_at"`
 }
 
-type Study struct {
+type study struct {
 	UUID        string    `dynamodbav:"uuid"`
 	PatientUUID string    `dynamodbav:"patient_uuid"`
 	Status      string    `dynamodbav:"status"`

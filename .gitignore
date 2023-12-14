@@ -1,2 +1,6 @@
 /*.dcm
-dist/
+/node_modules
+/.air.toml
+/.DS_STORE
+/build
+/.env

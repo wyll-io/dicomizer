@@ -1,0 +1,32 @@
+{{define "partials/patient_table"}}
+<table class="min-w-full divide-y divide-gray-300" id="patient-table">
+  <thead>
+    <tr>
+      <th
+        scope="col"
+        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+      >
+        Prénom
+      </th>
+      <th
+        scope="col"
+        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+      >
+        Nom
+      </th>
+      <th
+        scope="col"
+        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+      >
+        Filtres
+      </th>
+      <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
+        <span class="sr-only">Actions</span>
+      </th>
+    </tr>
+  </thead>
+  <tbody class="divide-y divide-gray-200" id="patient-list">
+    {{range .Patients}} {{template "partials/patient_row" .}} {{end}}
+  </tbody>
+</table>
+{{end}}

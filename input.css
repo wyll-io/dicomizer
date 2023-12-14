@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .input-base {
+    @apply block w-full rounded-md border-0 py-1.5 pl-2 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6;
+  }
+
+  .input-error {
+    @apply input-base text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500;
+  }
+
+  .input-normal {
+    @apply input-base text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600;
+  }
+
+  .input-ok {
+    @apply input-base text-green-900 ring-green-300 placeholder:text-green-300 focus:ring-green-500;
+  }
+}

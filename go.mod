@@ -3,8 +3,15 @@ module github.com/wyll-io/dicomizer
 go 1.21.5
 
 require (
+	github.com/joho/godotenv v1.5.1
 	github.com/suyashkumar/dicom v1.0.7
 	github.com/urfave/cli/v2 v2.26.0
+)
+
+require (
+	github.com/jonboulle/clockwork v0.4.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
 )
 
 // AWS Dependencies
@@ -15,6 +22,12 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.26.6
 	github.com/aws/aws-sdk-go-v2/service/glacier v1.19.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.47.5
+)
+
+// Web Dependencies
+require (
+	github.com/gorilla/handlers v1.5.2
+	github.com/gorilla/mux v1.8.1
 )
 
 require (
@@ -37,6 +50,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.5 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
+	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/go-co-op/gocron/v2 v2.0.3
+	github.com/golang-jwt/jwt/v5 v5.2.0
+	github.com/google/uuid v1.5.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect

@@ -2,13 +2,17 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/joho/godotenv"
 	"github.com/suyashkumar/dicom"
 	"github.com/urfave/cli/v2"
 	"github.com/wyll-io/dicomizer/internal/glacier"
+	"github.com/wyll-io/dicomizer/internal/scheduler"
+	"github.com/wyll-io/dicomizer/internal/web"
 	"github.com/wyll-io/dicomizer/pkg/anonymize"
 )
 
@@ -46,7 +50,7 @@ var app = &cli.App{
 					return err
 				}
 
-				if err := anonymize.Anonymize(&dataset); err != nil {
+				if err := anonymize.AnonymizeDataset(&dataset); err != nil {
 					return err
 				}
 
@@ -85,6 +89,32 @@ var app = &cli.App{
 				return nil
 			},
 		},
+		{
+			Name:        "start",
+			Description: "Start the DICOMizer server",
+			ArgsUsage:   "<host:port> <crontab>",
+			Before: func(ctx *cli.Context) error {
+				if ctx.Args().Len() < 2 {
+					return fmt.Errorf("missing host:port and crontab")
+				}
+
+				return nil
+			},
+			Action: func(ctx *cli.Context) error {
+				crontab := ctx.Args().Get(1)
+				s, err := scheduler.Create(crontab)
+				if err != nil {
+					return err
+				}
+				defer s.Shutdown()
+
+				fmt.Printf("starting scheduler with \"%s\"...\n", crontab)
+				s.Start()
+
+				fmt.Printf("starting web server on %s...\n", ctx.Args().First())
+				return http.ListenAndServe(ctx.Args().First(), web.RegisterHandlers())
+			},
+		},
 	},
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
@@ -92,6 +122,18 @@ var app = &cli.App{
 			DefaultText: "enable verbose mode",
 		},
 	},
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		panic("error while loading .env file")
+	}
+	if os.Getenv("JWT_SECRET") == "" {
+		panic("JWT_SECRET is not set")
+	}
+	if os.Getenv("ADMIN_PASSWORD") == "" {
+		panic("ADMIN_PASSWORD is not set")
+	}
 }
 
 func main() {

@@ -1,11 +1,16 @@
+# Dicomizer
 
+Tool suite for DICOM file manipulation, anonymization and data exchange over HTTP(s).
 
-## Anonimization
+## Package structure
 
-https://dicom.nema.org/dicom/2013/output/chtml/part15/chapter_E.html#table_E.1-1
+- `pkg`: public packages available for public usage
+  - `anonymize`: DICOM anonymization
+  - `web`: DICOM over HTTP(s)
+- `cmd`: command line tools
+- `internal`: specific packages for internal usage
 
-## Anexes
+## Useful links
 
-https://github.com/suyashkumar/dicom
-
-Query based on ID for DICOM Objects (QIDO) : QIDO-RS
+- [DICOM over HTTP(s)](https://dicom.nema.org/medical/dicom/current/output/pdf/part18.pdf)
+- [DICOM Confidentiality Profiles](https://dicom.nema.org/medical/dicom/current/output/pdf/part15.pdf)

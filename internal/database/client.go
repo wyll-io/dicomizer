@@ -2,33 +2,39 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/wyll-io/dicomizer/internal/models"
+	dao "github.com/wyll-io/dicomizer/internal/DAO"
 )
 
 type DB struct {
 	Client *dynamodb.Client
 }
 
-func New(cfg aws.Config) DB {
+type UUIDFilter struct {
+	UUID string
+	Key  string
+}
+
+func New(cfg aws.Config) dao.DBActions {
 	return DB{
 		Client: dynamodb.NewFromConfig(cfg),
 	}
 }
 
-func (db DB) AddStudy(ctx context.Context, study models.Study) error {
-	item, err := attributevalue.MarshalMap(study)
+func (db DB) add(ctx context.Context, collection string, data interface{}) error {
+	item, err := attributevalue.MarshalMap(data)
 	if err != nil {
 		return err
 	}
 
 	_, err = db.Client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String("studies"),
+		TableName: aws.String(collection),
 		Item:      item,
 	})
 	if err != nil {
@@ -38,93 +44,206 @@ func (db DB) AddStudy(ctx context.Context, study models.Study) error {
 	return nil
 }
 
-func (db DB) AddPatient(ctx context.Context, patient models.Patient) error {
-	item, err := attributevalue.MarshalMap(patient)
+func (db DB) update(ctx context.Context, collection, uuid string, data interface{}) error {
+	item, err := attributevalue.MarshalMap(data)
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String("patients"),
-		Item:      item,
+	update := expression.UpdateBuilder{}
+	for k, v := range item {
+		update = update.Set(expression.Name(k), expression.Value(v))
+	}
+
+	expr, err := expression.NewBuilder().WithUpdate(update).Build()
+	if err != nil {
+		return nil
+	}
+
+	_, err = db.Client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		Key: map[string]types.AttributeValue{
+			"uuid": &types.AttributeValueMemberS{
+				Value: uuid,
+			},
+		},
+		TableName:                 aws.String(collection),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ReturnValues:              types.ReturnValueUpdatedNew,
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
-func (db DB) GetPatient(ctx context.Context, uuid string, nestedValues bool) (models.Patient, []models.Study, error) {
+func (db DB) getByUUID(ctx context.Context, collection, uuid string, out interface{}) error {
 	item, err := db.Client.GetItem(ctx, &dynamodb.GetItemInput{
 		Key: map[string]types.AttributeValue{
 			"uuid": &types.AttributeValueMemberS{
 				Value: uuid,
 			},
 		},
-		TableName: aws.String("patients"),
+		TableName: aws.String(collection),
 	})
 	if err != nil {
-		return models.Patient{}, []models.Study{}, err
+		return err
 	}
 
-	patient := models.Patient{}
-	if err := attributevalue.UnmarshalMap(item.Item, &patient); err != nil {
-		return models.Patient{}, []models.Study{}, err
-	}
-
-	if nestedValues {
-		studies, err := db.GetStudiesByPatientUUID(ctx, patient.UUID)
-		if err != nil {
-			return models.Patient{}, []models.Study{}, err
-		}
-
-		return patient, studies, nil
-	}
-
-	return patient, []models.Study{}, nil
+	return attributevalue.UnmarshalMap(item.Item, &out)
 }
 
-func (db DB) GetStudyByUUID(ctx context.Context, uuid string) (models.Study, error) {
-	item, err := db.Client.GetItem(ctx, &dynamodb.GetItemInput{
-		Key: map[string]types.AttributeValue{
-			"uuid": &types.AttributeValueMemberS{
-				Value: uuid,
-			},
-		},
-		TableName: aws.String("studies"),
-	})
-	if err != nil {
-		return models.Study{}, err
-	}
-
-	study := models.Study{}
-	if err := attributevalue.UnmarshalMap(item.Item, &study); err != nil {
-		return models.Study{}, err
-	}
-
-	return study, nil
-}
-
-func (db DB) GetStudiesByPatientUUID(ctx context.Context, patientUUID string) ([]models.Study, error) {
-	keyEx := expression.Key("patient_uuid").Equal(expression.Value(patientUUID))
+func (db DB) getByParentUUID(ctx context.Context, collection string, filter UUIDFilter, out interface{}) error {
+	keyEx := expression.Key(filter.UUID).Equal(expression.Value(filter.Key))
 	expr, err := expression.NewBuilder().WithKeyCondition(keyEx).Build()
 	if err != nil {
-		return []models.Study{}, err
+		return err
 	}
 
 	items, err := db.Client.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String("studies"),
+		TableName:                 aws.String(collection),
 		KeyConditionExpression:    expr.KeyCondition(),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 	})
 	if err != nil {
-		return []models.Study{}, err
+		return err
 	}
 
-	studies := make([]models.Study, 0, items.Count)
-	attributevalue.UnmarshalListOfMaps(items.Items, &studies)
+	return attributevalue.UnmarshalListOfMaps(items.Items, &out)
+}
 
-	return studies, nil
+func (db DB) AddStudy(ctx context.Context, study dao.Study) error {
+	return db.add(ctx, "studies", ConvertDAOToStudy(study))
+}
+
+func (db DB) AddPatient(ctx context.Context, patient dao.Patient) error {
+	p, sts := ConvertDAOToPatient(patient)
+	if err := db.add(ctx, "patients", p); err != nil {
+		return err
+	}
+
+	if len(sts) > 0 {
+		for _, s := range sts {
+			if err := db.add(ctx, "studies", s); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (db DB) GetPatientByUUID(ctx context.Context, uuid string, nestedValues bool) (dao.Patient, error) {
+	p := patient{}
+
+	if err := db.getByUUID(ctx, "patients", uuid, &p); err != nil {
+		return dao.Patient{}, err
+	}
+
+	sts := []study{}
+	if nestedValues {
+		err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: uuid, Key: "patient_uuid"}, &sts)
+		if err != nil {
+			return dao.Patient{}, err
+		}
+	}
+
+	return ConvertPatientToDAO(p, sts), nil
+}
+func (db DB) GetPatient(ctx context.Context, filters dao.SearchPatient, nestedValues bool) ([]dao.Patient, error) {
+	expr := expression.Contains(expression.Name("firstname"), filters.Firstname).
+		Or(expression.Contains(expression.Name("lastname"), filters.Lastname)).
+		Or(expression.Contains(expression.Name("filters"), filters.Filters))
+	r, err := expression.NewBuilder().WithCondition(expr).Build()
+	if err != nil {
+		return []dao.Patient{}, err
+	}
+
+	patients := []patient{}
+
+	out, err := db.Client.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 aws.String("patients"),
+		KeyConditionExpression:    r.KeyCondition(),
+		ExpressionAttributeNames:  r.Names(),
+		ExpressionAttributeValues: r.Values(),
+	})
+	if err != nil {
+		return []dao.Patient{}, err
+	}
+
+	if err := attributevalue.UnmarshalListOfMaps(out.Items, &patients); err != nil {
+		return []dao.Patient{}, err
+	}
+
+	studies := map[string][]study{}
+	if nestedValues {
+		for _, p := range patients {
+			sts := []study{}
+			err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: p.UUID, Key: "patient_uuid"}, &sts)
+			if err != nil {
+				return []dao.Patient{}, err
+			}
+			studies[p.UUID] = sts
+		}
+	}
+
+	return ConvertPatientsToDAO(patients, studies), nil
+}
+
+func (db DB) GetStudyByUUID(ctx context.Context, uuid string) (dao.Study, error) {
+	s := study{}
+
+	if err := db.getByUUID(ctx, "studies", uuid, &s); err != nil {
+		return dao.Study{}, err
+	}
+
+	return ConvertStudyToDAO(s), nil
+}
+
+func (db DB) GetStudiesByPatientUUID(ctx context.Context, patientUUID string) ([]dao.Study, error) {
+	sts := []study{}
+
+	err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: patientUUID, Key: "patient_uuid"}, &sts)
+	if err != nil {
+		return nil, err
+	}
+
+	return ConvertStudiesToDAO(sts), nil
+}
+
+func (db DB) DeletePatient(ctx context.Context, uuid string) error {
+	_, err := db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: aws.String("patients"),
+		Key: map[string]types.AttributeValue{
+			"uuid": &types.AttributeValueMemberS{
+				Value: uuid,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	// TODO: delete all studies related to this patient
+
+	return nil
+}
+
+func (db DB) UpdatePatient(ctx context.Context, patient dao.Patient) error {
+	patient.UpdatedAt = time.Now()
+	p, sts := ConvertDAOToPatient(patient)
+	if err := db.update(ctx, "patients", p.UUID, p); err != nil {
+		return err
+	}
+
+	if len(sts) > 0 {
+		for _, s := range sts {
+			s.UpdatedAt = time.Now()
+			if err := db.update(ctx, "studies", s.UUID, s); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

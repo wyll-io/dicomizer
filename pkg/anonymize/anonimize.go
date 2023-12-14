@@ -6,7 +6,9 @@ import (
 	"github.com/suyashkumar/dicom"
 )
 
-func Anonymize(dataset *dicom.Dataset) error {
+// AnonymizeDataset by looping over all known tags (see tags.go) and
+// applying the appropriate action.
+func AnonymizeDataset(dataset *dicom.Dataset) error {
 	for _, t := range tags {
 		el, err := dataset.FindElementByTag(t.tag)
 		if err != nil {
