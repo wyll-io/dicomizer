@@ -10,12 +10,14 @@ import (
 	awsS3 "github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type UploadOpts struct {
+type Options struct {
 	Bucket string
 	Key    string
 }
 
-func (c *Client) UploadFile(ctx context.Context, fp string, opts UploadOpts) error {
+func (c *Client) UploadFile(ctx context.Context, fp string, params interface{}) error {
+	opts := params.(Options)
+
 	f, err := os.Open(fp)
 	if err != nil {
 		return err
@@ -41,7 +43,9 @@ func (c *Client) UploadFile(ctx context.Context, fp string, opts UploadOpts) err
 	return nil
 }
 
-func (c *Client) Upload(ctx context.Context, r io.Reader, opts UploadOpts) error {
+func (c *Client) Upload(ctx context.Context, r io.Reader, params interface{}) error {
+	opts := params.(Options)
+
 	h := sha256.New()
 	wr, err := io.Copy(h, r)
 	if err != nil {

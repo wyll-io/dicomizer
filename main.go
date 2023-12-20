@@ -10,8 +10,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/suyashkumar/dicom"
 	"github.com/urfave/cli/v2"
-	"github.com/wyll-io/dicomizer/internal/glacier"
 	"github.com/wyll-io/dicomizer/internal/scheduler"
+	"github.com/wyll-io/dicomizer/internal/storage/glacier"
 	"github.com/wyll-io/dicomizer/internal/web"
 	"github.com/wyll-io/dicomizer/pkg/anonymize"
 )
@@ -81,7 +81,7 @@ var app = &cli.App{
 
 				client := glacier.NewClient(awsCfg)
 				for _, arg := range ctx.Args().Slice() {
-					client.UploadFile(ctx.Context, arg, glacier.UploadOpts{
+					client.UploadFile(ctx.Context, arg, glacier.Options{
 						VaultName: "dicomizer",
 					})
 				}
