@@ -60,5 +60,5 @@ func CreateMap(args ...interface{}) map[string]interface{} {
 }
 
 func Isset(v interface{}) bool {
-	return v == nil || v == "" || v == 0
+	return !(v == nil || v == "" || v == 0)
 }

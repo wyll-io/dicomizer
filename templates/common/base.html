@@ -13,14 +13,15 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.9"></script>
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
 
-    <title>{{.Title}}</title>
+    <title>{{ .Title }}</title>
   </head>
   <body class="h-full">
     <div class="min-h-full">
-      <div id="navbar">{{template "navbar" .}}</div>
-      <div id="content">{{template "content" .}}</div>
-      {{template "footer" .}}
+      <div id="navbar">{{ template "navbar" . }}</div>
+      <div id="content">{{ template "content" . }}</div>
+      {{ template "footer" . }}
     </div>
   </body>
 </html>

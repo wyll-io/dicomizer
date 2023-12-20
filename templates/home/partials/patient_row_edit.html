@@ -1,104 +1,104 @@
-{{define "partials/patient_row_edit"}}
-<tr id="tr-{{.UUID}}">
-  <form
-    hx-put="/patient/{{.UUID}}"
-    hx-target="#tr-{{.UUID}}"
-    hx-swap="outerHTML"
-    hx-headers='{"DICOMIZER-PARTIAL": "home,partials/patient_row"}'
-  >
-    <td
-      class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0"
+{{ define "partials/patient_row_edit" }}
+  <tr id="tr-{{ .UUID }}">
+    <form
+      hx-put="/patient/{{ .UUID }}"
+      hx-target="#tr-{{ .UUID }}"
+      hx-swap="outerHTML"
+      hx-headers='{"DICOMIZER-PARTIAL": "home,partials/patient_row"}'
     >
-      <div>
-        <label for="firstname" class="sr-only">Prénom</label>
-        <input
-          type="text"
-          name="firstname"
-          id="firstname"
-          class="input-normal"
-          placeholder="Prénom"
-          autocomplete="given-name"
-          value="{{.Firstname}}"
-        />
-      </div>
-    </td>
-    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-      <div>
-        <label for="lastname" class="sr-only">Nom de famille</label>
-        <input
-          type="text"
-          name="lastname"
-          id="lastname"
-          class="input-normal"
-          placeholder="Nom"
-          autocomplete="family-name"
-          value="{{.Lastname}}"
-        />
-      </div>
-    </td>
-    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-      <div>
-        <label for="filters" class="sr-only">Filtres</label>
-        <input
-          type="text"
-          name="filters"
-          id="filters"
-          class="input-normal"
-          placeholder="des,filtres"
-          value="{{.Filters}}"
-        />
-      </div>
-    </td>
-    <td class="whitespace-nowrap px-3 py-4 text-right text-gray-500">
-      <span class="isolate inline-flex rounded-md shadow-sm">
-        <!-- Validate edit -->
-        <button
-          type="submit"
-          class="relative -ml-px inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            data-slot="icon"
-            class="h-6 w-6"
+      <td
+        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0"
+      >
+        <div>
+          <label for="firstname" class="sr-only">Prénom</label>
+          <input
+            type="text"
+            name="firstname"
+            id="firstname"
+            class="input-normal"
+            placeholder="Prénom"
+            autocomplete="given-name"
+            value="{{ .Firstname }}"
+          />
+        </div>
+      </td>
+      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <div>
+          <label for="lastname" class="sr-only">Nom de famille</label>
+          <input
+            type="text"
+            name="lastname"
+            id="lastname"
+            class="input-normal"
+            placeholder="Nom"
+            autocomplete="family-name"
+            value="{{ .Lastname }}"
+          />
+        </div>
+      </td>
+      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <div>
+          <label for="filters" class="sr-only">Filtres</label>
+          <input
+            type="text"
+            name="filters"
+            id="filters"
+            class="input-normal"
+            placeholder="des,filtres"
+            value="{{ .Filters }}"
+          />
+        </div>
+      </td>
+      <td class="whitespace-nowrap px-3 py-4 text-right text-gray-500">
+        <span class="isolate inline-flex rounded-md shadow-sm">
+          <!-- Validate edit -->
+          <button
+            type="submit"
+            class="relative -ml-px inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m4.5 12.75 6 6 9-13.5"
-            />
-          </svg>
-        </button>
-        <!-- Cancel update -->
-        <button
-          type="button"
-          hx-get="/partials/patient-row"
-          hx-vals='{"firstname": "{{.Firstname}}", "lastname": "{{.Lastname}}", "filters": "{{.Filters}}", "uuid": "{{.UUID}}"}'
-          hx-target="tr-#{{.UUID}}"
-          hx-swap="outerHTML"
-          class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            data-slot="icon"
-            class="h-6 w-6"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              data-slot="icon"
+              class="h-6 w-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m4.5 12.75 6 6 9-13.5"
+              />
+            </svg>
+          </button>
+          <!-- Cancel update -->
+          <button
+            type="button"
+            hx-get="/partials/patient-row"
+            hx-vals='{"firstname": "{{ .Firstname }}", "lastname": "{{ .Lastname }}", "filters": "{{ .Filters }}", "uuid": "{{ .UUID }}"}'
+            hx-target="tr-#{{ .UUID }}"
+            hx-swap="outerHTML"
+            class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6 18 18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-      </span>
-    </td>
-  </form>
-</tr>
-{{end}}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              data-slot="icon"
+              class="h-6 w-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </span>
+      </td>
+    </form>
+  </tr>
+{{ end }}

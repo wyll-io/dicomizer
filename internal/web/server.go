@@ -46,7 +46,7 @@ func init() {
 				"templates/common/header.html",
 				"templates/common/footer.html",
 				"templates/home/main.html",
-				"templates/home/add_patient.html",
+				"templates/home/partials/add_patient.html",
 				"templates/home/patient_list.html",
 				"templates/home/partials/patient_row.html",
 				"templates/home/partials/patient_table.html",

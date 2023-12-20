@@ -4,10 +4,10 @@ go 1.21.5
 
 // Utilities Dependencies
 require (
+	github.com/go-co-op/gocron/v2 v2.0.3
 	github.com/joho/godotenv v1.5.1
 	github.com/suyashkumar/dicom v1.0.7
 	github.com/urfave/cli/v2 v2.26.0
-	github.com/go-co-op/gocron/v2 v2.0.3
 )
 
 // AWS Dependencies
@@ -22,16 +22,13 @@ require (
 
 // Web Dependencies
 require (
-	github.com/gorilla/handlers v1.5.2
-	github.com/gorilla/mux v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.5.0
+	github.com/gorilla/handlers v1.5.2
+	github.com/gorilla/mux v1.8.1
 )
 
 require (
-	github.com/jonboulle/clockwork v0.4.0 // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
-	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.5.4 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.12 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.12
@@ -53,7 +50,15 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/jonboulle/clockwork v0.4.0 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
+	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
 	golang.org/x/text v0.14.0 // indirect
+)
+
+require (
+	github.com/philippfranke/multipart-related v0.0.0-20170217130855-01d28b2a1769 // indirect
+	github.com/toastcheng/dicomweb-go v0.2.1 // indirect
 )
