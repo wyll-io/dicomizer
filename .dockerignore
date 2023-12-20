@@ -1,0 +1,11 @@
+# Ignore all files and directories by precaution
+/*
+
+# Application's files and directories
+!/internal
+!/pkg
+!/public
+!/templates
+!/go.mod
+!/go.sum
+!/main.go

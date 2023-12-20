@@ -90,18 +90,35 @@ var app = &cli.App{
 			},
 		},
 		{
-			Name:        "start",
-			Description: "Start the DICOMizer server",
-			ArgsUsage:   "<host:port> <crontab>",
+			Name: "start",
+			Description: `Start the DICOMizer server. 
+If no arguments are provided, the server will use the environment variables:
+- HTTP_HOST
+- HTTP_PORT
+- CRONTAB`,
+			ArgsUsage: "[HOST:PORT CRONTAB]",
 			Before: func(ctx *cli.Context) error {
 				if ctx.Args().Len() < 2 {
-					return fmt.Errorf("missing host:port and crontab")
+					if os.Getenv("HTTP_HOST") == "" &&
+						os.Getenv("HTTP_PORT") == "" &&
+						os.Getenv("CRONTAB") == "" {
+						return fmt.Errorf("missing HTTP host or HTTP port or crontab")
+					}
 				}
 
 				return nil
 			},
 			Action: func(ctx *cli.Context) error {
+				addr := ctx.Args().First()
+				if addr == "" {
+					addr = os.Getenv("HTTP_HOST") + ":" + os.Getenv("HTTP_PORT")
+				}
+
 				crontab := ctx.Args().Get(1)
+				if crontab == "" {
+					crontab = os.Getenv("CRONTAB")
+				}
+
 				s, err := scheduler.Create(crontab)
 				if err != nil {
 					return err
@@ -111,8 +128,8 @@ var app = &cli.App{
 				fmt.Printf("starting scheduler with \"%s\"...\n", crontab)
 				s.Start()
 
-				fmt.Printf("starting web server on %s...\n", ctx.Args().First())
-				return http.ListenAndServe(ctx.Args().First(), web.RegisterHandlers())
+				fmt.Printf("starting web server on %s...\n", addr)
+				return http.ListenAndServe(addr, web.RegisterHandlers())
 			},
 		},
 	},
