@@ -183,7 +183,9 @@ func create(w http.ResponseWriter, r *http.Request) {
 		if v := r.Header.Get("DICOMIZER-PARTIAL-400"); v != "" {
 			keys := strings.Split(v, ",")
 			tmpl := r.Context().Value(webContext.Templates).(webContext.TemplatesValues)[keys[0]]
+			w.Header().Set("HX-Reswap", "outerHTML")
 			w.WriteHeader(http.StatusBadRequest)
+
 			if err := tmpl.ExecuteTemplate(w, keys[1], d); err != nil {
 				webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 			}

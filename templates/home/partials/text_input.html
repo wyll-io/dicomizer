@@ -8,6 +8,9 @@
   <div class="relative mt-2 rounded-md shadow-sm">
     <input
       type="text"
+      hx-post="/validate/input/{{ .ID }}"
+      hx-target="#{{ .ID }}-input"
+      hx-swap="innerHTML"
       name="{{ .ID }}"
       id="{{ .ID }}"
       class="{{ if .Error }}

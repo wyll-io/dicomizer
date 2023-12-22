@@ -7,7 +7,6 @@
           id="add-patient"
           hx-post="/patient"
           hx-target="#patient-list"
-          hx-target-error="#add-patient-section"
           hx-target-400="#add-patient-section"
           hx-swap="afterbegin"
           hx-headers='{"DICOMIZER-PARTIAL": "home,partials/patient_row", "DICOMIZER-PARTIAL-400": "home,partials/add_patient"}'
@@ -50,12 +49,15 @@
                       "ID" "lastname"
                       "Autocomplete" "family-name"
                       "Value" .Lastname
-                      "Placeholder" "Prénom"
+                      "Placeholder" "Nom"
                       "Error" .Form.Lastname
                     }}
                   {{ else }}
-                    {{ template "partials/text_input" map "Label" "Nom de famille"
-                      "ID" "lastname" "Autocomplete" "family-name" "Value" ""
+                    {{ template "partials/text_input"
+                      map "Label" "Nom de famille"
+                      "ID" "lastname"
+                      "Autocomplete" "family-name"
+                      "Value" ""
                       "Placeholder" "Nom"
                     }}
                   {{ end }}
