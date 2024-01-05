@@ -42,7 +42,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 			Firstname: "Antoine",
 			Lastname:  "Langlois",
 			Filters:   "some,filters",
-			Studies:   []dao.Study{},
+			Studies:   []dao.DCMImage{},
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Time{},
 			DeletedAt: time.Time{},
@@ -52,7 +52,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 			Firstname: "John",
 			Lastname:  "Doe",
 			Filters:   "other,filters",
-			Studies:   []dao.Study{},
+			Studies:   []dao.DCMImage{},
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Time{},
 			DeletedAt: time.Time{},
@@ -61,7 +61,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	if false {
 		iCtxV := r.Context().Value(webContext.Internal).(webContext.InternalValues)
-		_, err := iCtxV.DB.GetPatient(r.Context(), dao.SearchPatient{
+		_, err := iCtxV.DB.GetPatient(r.Context(), dao.SearchPatientParams{
 			Firstname: search,
 			Lastname:  search,
 		}, false)
@@ -111,7 +111,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 		Firstname: firstname,
 		Lastname:  lastname,
 		Filters:   filters,
-		Studies:   []dao.Study{},
+		Studies:   []dao.DCMImage{},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Time{},
 		DeletedAt: time.Time{},
@@ -150,7 +150,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 		"Firstname": r.FormValue("firstname"),
 		"Lastname":  r.FormValue("lastname"),
 		"Filters":   r.FormValue("filters"),
-		"Studies":   []dao.Study{},
+		"Studies":   []dao.DCMImage{},
 		"CreatedAt": time.Now(),
 		"UpdatedAt": time.Time{},
 		"DeletedAt": time.Time{},
@@ -204,7 +204,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 			Firstname: d["Firstname"].(string),
 			Lastname:  d["Lastname"].(string),
 			Filters:   d["Filters"].(string),
-			Studies:   d["Studies"].([]dao.Study),
+			Studies:   d["Studies"].([]dao.DCMImage),
 			CreatedAt: d["CreatedAt"].(time.Time),
 			UpdatedAt: d["UpdatedAt"].(time.Time),
 			DeletedAt: d["DeletedAt"].(time.Time),

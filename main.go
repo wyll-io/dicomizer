@@ -128,7 +128,7 @@ If no arguments are provided, the server will use the environment variables:
 				fmt.Printf("starting scheduler with \"%s\"...\n", crontab)
 				s.Start()
 
-				fmt.Printf("starting web server on %s...\n", addr)
+				fmt.Printf("web server started at http://%s\n", addr)
 				return http.ListenAndServe(addr, web.RegisterHandlers())
 			},
 		},
@@ -142,7 +142,7 @@ If no arguments are provided, the server will use the environment variables:
 }
 
 func init() {
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
 		panic("error while loading .env file")
 	}
 	if os.Getenv("JWT_SECRET") == "" {

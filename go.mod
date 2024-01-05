@@ -2,11 +2,13 @@ module github.com/wyll-io/dicomizer
 
 go 1.21.5
 
+// DICOM Dependencies
+require github.com/suyashkumar/dicom v1.0.7
+
 // Utilities Dependencies
 require (
 	github.com/go-co-op/gocron/v2 v2.0.3
 	github.com/joho/godotenv v1.5.1
-	github.com/suyashkumar/dicom v1.0.7
 	github.com/urfave/cli/v2 v2.26.0
 )
 
@@ -56,9 +58,4 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
 	golang.org/x/text v0.14.0 // indirect
-)
-
-require (
-	github.com/philippfranke/multipart-related v0.0.0-20170217130855-01d28b2a1769 // indirect
-	github.com/toastcheng/dicomweb-go v0.2.1 // indirect
 )

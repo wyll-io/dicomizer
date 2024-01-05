@@ -112,7 +112,7 @@ func (db DB) getByParentUUID(ctx context.Context, collection string, filter UUID
 	return attributevalue.UnmarshalListOfMaps(items.Items, &out)
 }
 
-func (db DB) AddStudy(ctx context.Context, study dao.Study) error {
+func (db DB) AddStudy(ctx context.Context, study dao.DCMImage) error {
 	return db.add(ctx, "studies", ConvertDAOToStudy(study))
 }
 
@@ -140,7 +140,7 @@ func (db DB) GetPatientByUUID(ctx context.Context, uuid string, nestedValues boo
 		return dao.Patient{}, err
 	}
 
-	sts := []study{}
+	sts := []dcmImage{}
 	if nestedValues {
 		err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: uuid, Key: "patient_uuid"}, &sts)
 		if err != nil {
@@ -150,7 +150,7 @@ func (db DB) GetPatientByUUID(ctx context.Context, uuid string, nestedValues boo
 
 	return ConvertPatientToDAO(p, sts), nil
 }
-func (db DB) GetPatient(ctx context.Context, filters dao.SearchPatient, nestedValues bool) ([]dao.Patient, error) {
+func (db DB) GetPatient(ctx context.Context, filters dao.SearchPatientParams, nestedValues bool) ([]dao.Patient, error) {
 	expr := expression.Contains(expression.Name("firstname"), filters.Firstname).
 		Or(expression.Contains(expression.Name("lastname"), filters.Lastname)).
 		Or(expression.Contains(expression.Name("filters"), filters.Filters))
@@ -175,10 +175,10 @@ func (db DB) GetPatient(ctx context.Context, filters dao.SearchPatient, nestedVa
 		return []dao.Patient{}, err
 	}
 
-	studies := map[string][]study{}
+	studies := map[string][]dcmImage{}
 	if nestedValues {
 		for _, p := range patients {
-			sts := []study{}
+			sts := []dcmImage{}
 			err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: p.UUID, Key: "patient_uuid"}, &sts)
 			if err != nil {
 				return []dao.Patient{}, err
@@ -190,18 +190,18 @@ func (db DB) GetPatient(ctx context.Context, filters dao.SearchPatient, nestedVa
 	return ConvertPatientsToDAO(patients, studies), nil
 }
 
-func (db DB) GetStudyByUUID(ctx context.Context, uuid string) (dao.Study, error) {
-	s := study{}
+func (db DB) GetStudyByUUID(ctx context.Context, uuid string) (dao.DCMImage, error) {
+	s := dcmImage{}
 
 	if err := db.getByUUID(ctx, "studies", uuid, &s); err != nil {
-		return dao.Study{}, err
+		return dao.DCMImage{}, err
 	}
 
 	return ConvertStudyToDAO(s), nil
 }
 
-func (db DB) GetStudiesByPatientUUID(ctx context.Context, patientUUID string) ([]dao.Study, error) {
-	sts := []study{}
+func (db DB) GetStudiesByPatientUUID(ctx context.Context, patientUUID string) ([]dao.DCMImage, error) {
+	sts := []dcmImage{}
 
 	err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: patientUUID, Key: "patient_uuid"}, &sts)
 	if err != nil {

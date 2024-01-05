@@ -12,13 +12,17 @@ type patient struct {
 	DeletedAt time.Time `dynamodbav:"deleted_at"`
 }
 
-type study struct {
+type dcmImage struct {
 	UUID        string    `dynamodbav:"uuid"`
 	PatientUUID string    `dynamodbav:"patient_uuid"`
-	Status      string    `dynamodbav:"status"`
 	Hash        string    `dynamodbav:"hash"`
 	Filename    string    `dynamodbav:"filename"`
 	CreatedAt   time.Time `dynamodbav:"created_at"`
 	UpdatedAt   time.Time `dynamodbav:"updated_at"`
 	DeletedAt   time.Time `dynamodbav:"deleted_at"`
+}
+
+type Dicom struct {
+	UUID string `dynamodbav:"uuid"`
+	UID  string `dynamodbav:"uid"`
 }

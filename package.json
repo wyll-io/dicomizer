@@ -1,14 +1,8 @@
 {
-  "name": "dicomizer",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "gen-css": "tailwindcss --input input.css --output public/css/tailwind.css"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
     "prettier": "^3.1.1",

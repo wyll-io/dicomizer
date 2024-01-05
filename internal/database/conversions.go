@@ -2,7 +2,7 @@ package database
 
 import dao "github.com/wyll-io/dicomizer/internal/DAO"
 
-func ConvertPatientToDAO(p patient, sts []study) dao.Patient {
+func ConvertPatientToDAO(p patient, sts []dcmImage) dao.Patient {
 	patientDAO := dao.Patient{
 		UUID:      p.UUID,
 		Firstname: p.Firstname,
@@ -11,7 +11,7 @@ func ConvertPatientToDAO(p patient, sts []study) dao.Patient {
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
 		DeletedAt: p.DeletedAt,
-		Studies:   make([]dao.Study, 0, len(sts)),
+		Studies:   make([]dao.DCMImage, 0, len(sts)),
 	}
 
 	for _, s := range sts {
@@ -21,11 +21,10 @@ func ConvertPatientToDAO(p patient, sts []study) dao.Patient {
 	return patientDAO
 }
 
-func ConvertStudyToDAO(s study) dao.Study {
-	return dao.Study{
+func ConvertStudyToDAO(s dcmImage) dao.DCMImage {
+	return dao.DCMImage{
 		UUID:        s.UUID,
 		PatientUUID: s.PatientUUID,
-		Status:      s.Status,
 		Hash:        s.Hash,
 		Filename:    s.Filename,
 		CreatedAt:   s.CreatedAt,
@@ -34,8 +33,8 @@ func ConvertStudyToDAO(s study) dao.Study {
 	}
 }
 
-func ConvertStudiesToDAO(sts []study) []dao.Study {
-	studiesDAO := make([]dao.Study, 0, len(sts))
+func ConvertStudiesToDAO(sts []dcmImage) []dao.DCMImage {
+	studiesDAO := make([]dao.DCMImage, 0, len(sts))
 
 	for _, s := range sts {
 		studiesDAO = append(studiesDAO, ConvertStudyToDAO(s))
@@ -44,7 +43,7 @@ func ConvertStudiesToDAO(sts []study) []dao.Study {
 	return studiesDAO
 }
 
-func ConvertPatientsToDAO(ps []patient, sts map[string][]study) []dao.Patient {
+func ConvertPatientsToDAO(ps []patient, sts map[string][]dcmImage) []dao.Patient {
 	psDAO := make([]dao.Patient, 0, len(ps))
 	for _, p := range ps {
 		sts := sts[p.UUID]
@@ -54,7 +53,7 @@ func ConvertPatientsToDAO(ps []patient, sts map[string][]study) []dao.Patient {
 	return psDAO
 }
 
-func ConvertDAOToPatient(p dao.Patient) (patient, []study) {
+func ConvertDAOToPatient(p dao.Patient) (patient, []dcmImage) {
 	return patient{
 		UUID:      p.UUID,
 		Firstname: p.Firstname,
@@ -66,8 +65,8 @@ func ConvertDAOToPatient(p dao.Patient) (patient, []study) {
 	}, ConvertDAOToStudies(p.Studies)
 }
 
-func ConvertDAOToStudies(studies []dao.Study) []study {
-	studiesModels := make([]study, 0, len(studies))
+func ConvertDAOToStudies(studies []dao.DCMImage) []dcmImage {
+	studiesModels := make([]dcmImage, 0, len(studies))
 
 	for _, s := range studies {
 		studiesModels = append(studiesModels, ConvertDAOToStudy(s))
@@ -76,11 +75,10 @@ func ConvertDAOToStudies(studies []dao.Study) []study {
 	return studiesModels
 }
 
-func ConvertDAOToStudy(s dao.Study) study {
-	return study{
+func ConvertDAOToStudy(s dao.DCMImage) dcmImage {
+	return dcmImage{
 		UUID:        s.UUID,
 		PatientUUID: s.PatientUUID,
-		Status:      s.Status,
 		Hash:        s.Hash,
 		Filename:    s.Filename,
 		CreatedAt:   s.CreatedAt,

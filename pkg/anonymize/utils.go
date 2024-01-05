@@ -9,10 +9,15 @@ import (
 )
 
 const (
-	ROOT_UID     = "1.2.826.0.1.3680043.10.1336"
-	DEFAULT_DT   = "00010101010101.000000+0000"
-	DEFAULT_DA   = "00010101"
-	DEFAULT_TM   = "000000.00"
+	// ROOT_UID is the root UID allocated for this project
+	ROOT_UID = "1.2.826.0.1.3680043.10.1336"
+	// DEFAULT_DT is the default value for VR "DT"
+	DEFAULT_DT = "00010101010101.000000+0000"
+	// DEFAULT_DA is the default value for VR "DA"
+	DEFAULT_DA = "00010101"
+	// DEFAULT_TM is the default value for VR "TM"
+	DEFAULT_TM = "000000.00"
+	// DEFAUlT_ANON is the default value for anonymized fields
 	DEFAUlT_ANON = "Anonymized"
 )
 
