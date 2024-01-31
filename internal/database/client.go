@@ -2,248 +2,243 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/google/uuid"
 	dao "github.com/wyll-io/dicomizer/internal/DAO"
 )
 
 type DB struct {
 	Client *dynamodb.Client
+	Table  string
 }
 
-type UUIDFilter struct {
-	UUID string
-	Key  string
-}
-
-func New(cfg aws.Config) dao.DBActions {
+// New returns a new instance of the DynamoDB database client. It requires a
+// valid AWS configuration and the name of the table to use.
+// It uses a single table design, where the partition key is the UUID of the
+// patient and the sort key is the UUID of the DICOM file.
+func New(cfg aws.Config, table string) dao.DBActions {
 	return DB{
 		Client: dynamodb.NewFromConfig(cfg),
+		Table:  table,
 	}
 }
 
-func (db DB) add(ctx context.Context, collection string, data interface{}) error {
+// AddPatient adds a new patient to the database.
+// PK, SK, CreatedAt, UpdatedAt and DeletedAt are automatically populated.
+func (db DB) AddPatientInfo(ctx context.Context, data *dao.PatientInfo) error {
+	data.PK = fmt.Sprintf("PATIENT#%s", uuid.New())
+	data.SK = "INFO#0"
+	data.CreatedAt = time.Now()
+
 	item, err := attributevalue.MarshalMap(data)
 	if err != nil {
 		return err
 	}
 
 	_, err = db.Client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(collection),
+		TableName: &db.Table,
 		Item:      item,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (db DB) update(ctx context.Context, collection, uuid string, data interface{}) error {
-	item, err := attributevalue.MarshalMap(data)
-	if err != nil {
-		return err
-	}
-
-	update := expression.UpdateBuilder{}
-	for k, v := range item {
-		update = update.Set(expression.Name(k), expression.Value(v))
-	}
-
-	expr, err := expression.NewBuilder().WithUpdate(update).Build()
-	if err != nil {
-		return nil
-	}
-
-	_, err = db.Client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
-		Key: map[string]types.AttributeValue{
-			"uuid": &types.AttributeValueMemberS{
-				Value: uuid,
-			},
-		},
-		TableName:                 aws.String(collection),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		UpdateExpression:          expr.Update(),
-		ReturnValues:              types.ReturnValueUpdatedNew,
 	})
 
 	return err
 }
 
-func (db DB) getByUUID(ctx context.Context, collection, uuid string, out interface{}) error {
-	item, err := db.Client.GetItem(ctx, &dynamodb.GetItemInput{
-		Key: map[string]types.AttributeValue{
-			"uuid": &types.AttributeValueMemberS{
-				Value: uuid,
-			},
-		},
-		TableName: aws.String(collection),
+// AddPatientDCM adds a new DICOM file to the database.
+// PK, SK, CreatedAt and DeletedAt are automatically populated.
+func (db DB) AddPatientDCM(ctx context.Context, pk string, data *dao.DCMInfo) error {
+	data.PK = pk
+	data.SK = fmt.Sprintf("DCM#%s", uuid.New())
+	data.CreatedAt = time.Now()
+
+	item, err := attributevalue.MarshalMap(data)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Client.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: &db.Table,
+		Item:      item,
 	})
-	if err != nil {
-		return err
-	}
 
-	return attributevalue.UnmarshalMap(item.Item, &out)
+	return err
 }
 
-func (db DB) getByParentUUID(ctx context.Context, collection string, filter UUIDFilter, out interface{}) error {
-	keyEx := expression.Key(filter.UUID).Equal(expression.Value(filter.Key))
-	expr, err := expression.NewBuilder().WithKeyCondition(keyEx).Build()
-	if err != nil {
-		return err
-	}
+// SearchPatientInfo searches for patient info by fullname
+// (case sensitive, dynamodb doesn't implement full-text search).
+func (db DB) SearchPatientInfo(ctx context.Context, fullname string) ([]dao.PatientInfo, error) {
+	// search for patient info
+	pkEx := expression.Key("pk").BeginsWith("PATIENT#")
+	skEx := expression.Key("sk").Equal(expression.Value("INFO#0"))
+	fullnameEx := expression.Key("fullname").BeginsWith(fullname)
 
-	items, err := db.Client.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String(collection),
-		KeyConditionExpression:    expr.KeyCondition(),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-	})
-	if err != nil {
-		return err
-	}
-
-	return attributevalue.UnmarshalListOfMaps(items.Items, &out)
-}
-
-func (db DB) AddStudy(ctx context.Context, study dao.DCMImage) error {
-	return db.add(ctx, "studies", ConvertDAOToStudy(study))
-}
-
-func (db DB) AddPatient(ctx context.Context, patient dao.Patient) error {
-	p, sts := ConvertDAOToPatient(patient)
-	if err := db.add(ctx, "patients", p); err != nil {
-		return err
-	}
-
-	if len(sts) > 0 {
-		for _, s := range sts {
-			if err := db.add(ctx, "studies", s); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (db DB) GetPatientByUUID(ctx context.Context, uuid string, nestedValues bool) (dao.Patient, error) {
-	p := patient{}
-
-	if err := db.getByUUID(ctx, "patients", uuid, &p); err != nil {
-		return dao.Patient{}, err
-	}
-
-	sts := []dcmImage{}
-	if nestedValues {
-		err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: uuid, Key: "patient_uuid"}, &sts)
-		if err != nil {
-			return dao.Patient{}, err
-		}
-	}
-
-	return ConvertPatientToDAO(p, sts), nil
-}
-func (db DB) GetPatient(ctx context.Context, filters dao.SearchPatientParams, nestedValues bool) ([]dao.Patient, error) {
-	expr := expression.Contains(expression.Name("firstname"), filters.Firstname).
-		Or(expression.Contains(expression.Name("lastname"), filters.Lastname)).
-		Or(expression.Contains(expression.Name("filters"), filters.Filters))
-	r, err := expression.NewBuilder().WithCondition(expr).Build()
-	if err != nil {
-		return []dao.Patient{}, err
-	}
-
-	patients := []patient{}
-
-	out, err := db.Client.Query(ctx, &dynamodb.QueryInput{
-		TableName:                 aws.String("patients"),
-		KeyConditionExpression:    r.KeyCondition(),
-		ExpressionAttributeNames:  r.Names(),
-		ExpressionAttributeValues: r.Values(),
-	})
-	if err != nil {
-		return []dao.Patient{}, err
-	}
-
-	if err := attributevalue.UnmarshalListOfMaps(out.Items, &patients); err != nil {
-		return []dao.Patient{}, err
-	}
-
-	studies := map[string][]dcmImage{}
-	if nestedValues {
-		for _, p := range patients {
-			sts := []dcmImage{}
-			err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: p.UUID, Key: "patient_uuid"}, &sts)
-			if err != nil {
-				return []dao.Patient{}, err
-			}
-			studies[p.UUID] = sts
-		}
-	}
-
-	return ConvertPatientsToDAO(patients, studies), nil
-}
-
-func (db DB) GetStudyByUUID(ctx context.Context, uuid string) (dao.DCMImage, error) {
-	s := dcmImage{}
-
-	if err := db.getByUUID(ctx, "studies", uuid, &s); err != nil {
-		return dao.DCMImage{}, err
-	}
-
-	return ConvertStudyToDAO(s), nil
-}
-
-func (db DB) GetStudiesByPatientUUID(ctx context.Context, patientUUID string) ([]dao.DCMImage, error) {
-	sts := []dcmImage{}
-
-	err := db.getByParentUUID(ctx, "studies", UUIDFilter{UUID: patientUUID, Key: "patient_uuid"}, &sts)
+	expr, err := expression.NewBuilder().
+		WithKeyCondition(pkEx.And(skEx).And(fullnameEx)).
+		Build()
 	if err != nil {
 		return nil, err
 	}
 
-	return ConvertStudiesToDAO(sts), nil
+	res, err := db.Client.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Count == 0 {
+		return []dao.PatientInfo{}, nil
+	}
+
+	patients := make([]dao.PatientInfo, 0, res.Count)
+	for _, i := range res.Items {
+		patient := dao.PatientInfo{}
+		if err := attributevalue.UnmarshalMap(i, &patient); err != nil {
+			return nil, err
+		}
+
+		count, err := db.countPatientDCM(ctx, patient.PK)
+		if err != nil {
+			return nil, err
+		}
+
+		patient.DCMCount = count
+
+		patients = append(patients, patient)
+	}
+
+	return patients, nil
 }
 
-func (db DB) DeletePatient(ctx context.Context, uuid string) error {
-	_, err := db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
-		TableName: aws.String("patients"),
-		Key: map[string]types.AttributeValue{
-			"uuid": &types.AttributeValueMemberS{
-				Value: uuid,
-			},
-		},
+// GetPatientInfo returns all patients info.
+func (db DB) GetPatientsInfo(ctx context.Context) ([]dao.PatientInfo, error) {
+	// get all patients info
+	pkEx := expression.Key("pk").BeginsWith("PATIENT#")
+	skEx := expression.Key("sk").Equal(expression.Value("INFO#0"))
+
+	expr, err := expression.NewBuilder().
+		WithKeyCondition(pkEx.And(skEx)).
+		Build()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := db.Client.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Count == 0 {
+		return []dao.PatientInfo{}, nil
+	}
+
+	patients := make([]dao.PatientInfo, 0, res.Count)
+	for _, i := range res.Items {
+		patient := dao.PatientInfo{}
+		if err := attributevalue.UnmarshalMap(i, &patient); err != nil {
+			return nil, err
+		}
+
+		count, err := db.countPatientDCM(ctx, patient.PK)
+		if err != nil {
+			return nil, err
+		}
+
+		patient.DCMCount = count
+
+		patients = append(patients, patient)
+	}
+
+	return patients, nil
+}
+
+func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.PatientInfo) error {
+	data.UpdatedAt = time.Now()
+
+	filterEx := expression.Name("pk").Equal(expression.Value(pk)).
+		And(expression.Name("sk").Equal(expression.Value("INFO#0")))
+
+	updateEx := expression.Set(expression.Name("filters"), expression.Value(data.Filters))
+	updateEx.Set(expression.Name("lastname"), expression.Value(data.Lastname))
+	updateEx.Set(expression.Name("firstname"), expression.Value(data.Firstname))
+	updateEx.Set(expression.Name("updated_at"), expression.Value(data.UpdatedAt))
+
+	updateExpr, err := expression.NewBuilder().
+		WithUpdate(updateEx).
+		Build()
 	if err != nil {
 		return err
 	}
 
-	// TODO: delete all studies related to this patient
-
-	return nil
-}
-
-func (db DB) UpdatePatient(ctx context.Context, patient dao.Patient) error {
-	patient.UpdatedAt = time.Now()
-	p, sts := ConvertDAOToPatient(patient)
-	if err := db.update(ctx, "patients", p.UUID, p); err != nil {
+	filterExpr, err := expression.NewBuilder().
+		WithFilter(filterEx).
+		Build()
+	if err != nil {
 		return err
 	}
 
-	if len(sts) > 0 {
-		for _, s := range sts {
-			s.UpdatedAt = time.Now()
-			if err := db.update(ctx, "studies", s.UUID, s); err != nil {
-				return err
-			}
-		}
+	_, err = db.Client.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  updateExpr.Names(),
+		ExpressionAttributeValues: updateExpr.Values(),
+		UpdateExpression:          updateExpr.Update(),
+		Key:                       filterExpr.Values(),
+	})
+
+	return err
+}
+
+func (db DB) DeletePatient(ctx context.Context, pk string) error {
+	filterEx := expression.Key("pk").Equal(expression.Value(pk))
+
+	filterExpr, err := expression.NewBuilder().WithKeyCondition(filterEx).Build()
+	if err != nil {
+		return err
 	}
 
-	return nil
+	_, err = db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: &db.Table,
+		Key:       filterExpr.Values(),
+	})
+
+	return err
+}
+
+// countPatientDCM returns the number of processed DICOM files for a given patient.
+func (db DB) countPatientDCM(ctx context.Context, pk string) (uint, error) {
+	// count patient DCM
+	pkEx := expression.Key("pk").Equal(expression.Value(pk))
+	skEx := expression.Key("sk").BeginsWith("DCM#")
+
+	expr, err := expression.NewBuilder().
+		WithKeyCondition(pkEx.And(skEx)).
+		Build()
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := db.Client.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return uint(res.Count), nil
 }

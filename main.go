@@ -16,8 +16,16 @@ import (
 	"github.com/wyll-io/dicomizer/pkg/anonymize"
 )
 
+const (
+	AWS_DYNAMODB_TABLE = "dicomizer"
+)
+
 var (
-	awsCfg aws.Config
+	awsCfg           aws.Config
+	mandatoryEnvVars = []string{
+		"JWT_SECRET",
+		"ADMIN_PASSWORD",
+	}
 )
 
 var app = &cli.App{
@@ -74,6 +82,15 @@ var app = &cli.App{
 			Name:        "upload",
 			ArgsUsage:   "<input_file>...",
 			Description: "Upload DICOM files to AWS Glacier",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:        "dynamodb-table",
+					Category:    "AWS",
+					Usage:       "DynamoDB table name",
+					DefaultText: AWS_DYNAMODB_TABLE,
+					EnvVars:     []string{"DYNAMODB_TABLE"},
+				},
+			},
 			Action: func(ctx *cli.Context) error {
 				if !ctx.Args().Present() {
 					return fmt.Errorf("missing input file")
@@ -97,6 +114,15 @@ If no arguments are provided, the server will use the environment variables:
 - HTTP_PORT
 - CRONTAB`,
 			ArgsUsage: "[HOST:PORT CRONTAB]",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:        "dynamodb-table",
+					Category:    "AWS",
+					Usage:       "DynamoDB table name",
+					DefaultText: AWS_DYNAMODB_TABLE,
+					EnvVars:     []string{"DYNAMODB_TABLE"},
+				},
+			},
 			Before: func(ctx *cli.Context) error {
 				if ctx.Args().Len() < 2 {
 					if os.Getenv("HTTP_HOST") == "" &&
@@ -129,7 +155,7 @@ If no arguments are provided, the server will use the environment variables:
 				s.Start()
 
 				fmt.Printf("web server started at http://%s\n", addr)
-				return http.ListenAndServe(addr, web.RegisterHandlers())
+				return http.ListenAndServe(addr, web.RegisterHandlers(awsCfg, ctx.String("dynamodb-table")))
 			},
 		},
 	},
@@ -145,11 +171,10 @@ func init() {
 	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
 		panic("error while loading .env file")
 	}
-	if os.Getenv("JWT_SECRET") == "" {
-		panic("JWT_SECRET is not set")
-	}
-	if os.Getenv("ADMIN_PASSWORD") == "" {
-		panic("ADMIN_PASSWORD is not set")
+	for _, env := range mandatoryEnvVars {
+		if os.Getenv(env) == "" {
+			panic(env + " is not set")
+		}
 	}
 }
 

@@ -20,14 +20,14 @@
               >
                 <!-- Firstname -->
                 <div class="sm:col-span-3" id="firstname-input">
-                  {{ if isset .Form }}
+                  {{ if isset .Errors }}
                     {{ template "partials/text_input"
                       map "Label" "Prénom"
                       "ID" "firstname"
                       "Autocomplete" "given-name"
                       "Value" .Firstname
                       "Placeholder" "John"
-                      "Error" .Form.Firstname
+                      "Error" .Errors.Firstname
                     }}
                   {{ else }}
                     {{ template
@@ -43,14 +43,14 @@
 
                 <!-- Lastname -->
                 <div class="sm:col-span-3" id="lastname-input">
-                  {{ if isset .Form }}
+                  {{ if isset .Errors }}
                     {{ template "partials/text_input"
                       map "Label" "Nom de famille"
                       "ID" "lastname"
                       "Autocomplete" "family-name"
                       "Value" .Lastname
                       "Placeholder" "Smith"
-                      "Error" .Form.Lastname
+                      "Error" .Errors.Lastname
                     }}
                   {{ else }}
                     {{ template "partials/text_input"
@@ -66,13 +66,13 @@
 
               <!-- Filters -->
               <div class="mt-3 sm:col-span-4" id="filters-input">
-                {{ if isset .Form }}
+                {{ if isset .Errors }}
                   {{ template "partials/text_input"
                     map "Label" "Filtres"
                     "ID" "filters"
                     "Value" .Filters
                     "Placeholder" "0010,0020=PAT002;0008,0052=STUDY"
-                    "Error" .Form.Filters
+                    "Error" .Errors.Filters
                   }}
                 {{ else }}
                   {{ template "partials/text_input"

@@ -10,7 +10,7 @@ func Register(r *mux.Router) {
 	r.HandleFunc("/patient/search", search).Methods("POST")
 
 	r.HandleFunc("/patient", create).Methods("POST")
-	r.HandleFunc("/patient/{uuid}", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/patient/{pk}", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodDelete:
 			delete(w, r)

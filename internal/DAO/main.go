@@ -5,40 +5,46 @@ import (
 	"time"
 )
 
-type Patient struct {
-	UUID      string
-	Firstname string
-	Lastname  string
-	Filters   string
-	Studies   []DCMImage
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
+type Table struct {
+	PK        string    `dynamodbav:"pk"`
+	SK        string    `dynamodbav:"sk"`
+	Firstname string    `dynamodbav:"firstname"`
+	Lastname  string    `dynamodbav:"lastname"`
+	Filters   string    `dynamodbav:"filters"`
+	Hash      string    `dynamodbav:"hash"`
+	Filename  string    `dynamodbav:"filename"`
+	CreatedAt time.Time `dynamodbav:"created_at"`
+	UpdatedAt time.Time `dynamodbav:"updated_at"`
+	DeletedAt time.Time `dynamodbav:"deleted_at"`
 }
 
-type SearchPatientParams struct {
-	Firstname string
-	Lastname  string
-	Filters   string
+type PatientInfo struct {
+	PK        string    `dynamodbav:"pk"`
+	SK        string    `dynamodbav:"sk"`
+	Firstname string    `dynamodbav:"firstname"`
+	Lastname  string    `dynamodbav:"lastname"`
+	Filters   string    `dynamodbav:"filters"`
+	CreatedAt time.Time `dynamodbav:"created_at"`
+	UpdatedAt time.Time `dynamodbav:"updated_at"`
+	DeletedAt time.Time `dynamodbav:"deleted_at"`
+
+	DCMCount uint
 }
 
-type DCMImage struct {
-	UUID        string
-	PatientUUID string
-	Hash        string
-	Filename    string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   time.Time
+type DCMInfo struct {
+	PK        string    `dynamodbav:"pk"`
+	SK        string    `dynamodbav:"sk"`
+	Hash      string    `dynamodbav:"hash"`
+	Filename  string    `dynamodbav:"filename"`
+	CreatedAt time.Time `dynamodbav:"created_at"`
+	DeletedAt time.Time `dynamodbav:"deleted_at"`
 }
 
 type DBActions interface {
-	AddStudy(ctx context.Context, study DCMImage) error
-	AddPatient(ctx context.Context, patient Patient) error
-	GetPatient(ctx context.Context, filters SearchPatientParams, nestedValues bool) ([]Patient, error)
-	GetPatientByUUID(ctx context.Context, uuid string, nestedValues bool) (Patient, error)
-	GetStudyByUUID(ctx context.Context, uuid string) (DCMImage, error)
-	GetStudiesByPatientUUID(ctx context.Context, patientUUID string) ([]DCMImage, error)
-	DeletePatient(ctx context.Context, uuid string) error
-	UpdatePatient(ctx context.Context, patient Patient) error
+	AddPatientInfo(ctx context.Context, data *PatientInfo) error
+	AddPatientDCM(ctx context.Context, pk string, data *DCMInfo) error
+	SearchPatientInfo(ctx context.Context, fullname string) ([]PatientInfo, error)
+	GetPatientsInfo(ctx context.Context) ([]PatientInfo, error)
+	UpdatePatientInfo(ctx context.Context, pk string, data *PatientInfo) error
+	DeletePatient(ctx context.Context, pk string) error
 }

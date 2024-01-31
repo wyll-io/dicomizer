@@ -2,12 +2,11 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"net/http"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/wyll-io/dicomizer/internal/database"
@@ -25,16 +24,6 @@ var (
 )
 
 func init() {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		panic(fmt.Sprintf("error while loading aws config: %v", err))
-	}
-
-	internalCtx = webContext.InternalValues{
-		Cfg: cfg,
-		DB:  database.New(cfg),
-	}
-
 	templates["home"] = template.Must(
 		template.New("home").
 			Funcs(template.FuncMap{
@@ -74,7 +63,11 @@ func init() {
 	)
 }
 
-func RegisterHandlers() http.Handler {
+func RegisterHandlers(awsCfg aws.Config, dynamoDBTable string) http.Handler {
+	internalCtx = webContext.InternalValues{
+		DB: database.New(awsCfg, dynamoDBTable),
+	}
+
 	r := mux.NewRouter()
 
 	home.Register(r)
