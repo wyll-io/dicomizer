@@ -1,0 +1,190 @@
+{
+  "ModelName": "Dicomizer",
+  "ModelMetadata": {
+    "Author": "Antoine Langlois",
+    "DateCreated": "Feb 01, 2024, 10:01 AM",
+    "DateLastModified": "Feb 01, 2024, 11:02 AM",
+    "Description": "",
+    "AWSService": "Amazon DynamoDB",
+    "Version": "3.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "dicomizer",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "pk",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "sk",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "Fullname",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "filters",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "hash",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "filename",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "created_at",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "updated_at",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "deleted_at",
+          "AttributeType": "S"
+        }
+      ],
+      "TableData": [
+        {
+          "pk": {
+            "S": "PATIENT#5d32132f-3f63-463e-8091-299387149320"
+          },
+          "sk": {
+            "S": "DCM#c78d036e-fe39-47e4-a290-b522edbeb2ba"
+          },
+          "hash": {
+            "S": "some_hash"
+          },
+          "filename": {
+            "S": "filename.dcm"
+          },
+          "created_at": {
+            "S": "1706780582"
+          }
+        },
+        {
+          "pk": {
+            "S": "PATIENT#5d32132f-3f63-463e-8091-299387149320"
+          },
+          "sk": {
+            "S": "INFO#0"
+          },
+          "Fullname": {
+            "S": "John Doe"
+          },
+          "filters": {
+            "S": "0000,0000=XXX"
+          },
+          "created_at": {
+            "S": "1706780572"
+          }
+        },
+        {
+          "pk": {
+            "S": "PATIENT#5d32132f-3f63-463e-8091-299387149320"
+          },
+          "sk": {
+            "S": "DCM#a05125f1-b7f5-4e77-842a-4063d1a3687c"
+          },
+          "hash": {
+            "S": "some_hash2"
+          },
+          "filename": {
+            "S": "filename2.dcm"
+          },
+          "created_at": {
+            "S": "1706780714"
+          }
+        },
+        {
+          "pk": {
+            "S": "PATIENT#4ad7019f-2b10-49a9-a313-a6512ef78aae"
+          },
+          "sk": {
+            "S": "INFO#0"
+          },
+          "Fullname": {
+            "S": "John Smith"
+          },
+          "filters": {
+            "S": "0000,0000=XXX"
+          },
+          "created_at": {
+            "S": "1706780766"
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "SampleDataFormats": {
+        "patient": [
+          "identifiers",
+          "UUID"
+        ],
+        "dcm": [
+          "identifiers",
+          "UUID"
+        ],
+        "firstname": [
+          "identifiers",
+          "First name"
+        ],
+        "lastname": [
+          "identifiers",
+          "Last name"
+        ],
+        "created_at": [
+          "date",
+          "Epoc/Unix date format"
+        ],
+        "updated_at": [
+          "date",
+          "Epoc/Unix date format"
+        ],
+        "deleted_at": [
+          "date",
+          "Epoc/Unix date format"
+        ],
+        "Fullname": [
+          "identifiers",
+          "Full name"
+        ]
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "AutoScalingRead": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        },
+        "AutoScalingWrite": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        }
+      }
+    }
+  ]
+}
