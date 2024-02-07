@@ -10,58 +10,29 @@
           hx-target-400="#add-patient-section"
           hx-swap="afterbegin"
           hx-headers='{"DICOMIZER-PARTIAL": "home,partials/patient_row", "DICOMIZER-PARTIAL-400": "home,partials/add_patient"}'
-          _="on htmx:afterRequest reset() the #add-patient"
         >
           <div class="space-y-12">
             <div class="border-b border-gray-900/10 pb-12">
-              <!-- First & last name -->
-              <div
-                class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
-              >
-                <!-- Firstname -->
-                <div class="sm:col-span-3" id="firstname-input">
-                  {{ if isset .Errors }}
-                    {{ template "partials/text_input"
-                      map "Label" "Prénom"
-                      "ID" "firstname"
-                      "Autocomplete" "given-name"
-                      "Value" .Firstname
-                      "Placeholder" "John"
-                      "Error" .Errors.Firstname
-                    }}
-                  {{ else }}
-                    {{ template
-                      "partials/text_input"
-                      map "Label" "Prénom"
-                      "ID" "firstname"
-                      "Autocomplete" "given-name"
-                      "Value" ""
-                      "Placeholder" "John"
-                    }}
-                  {{ end }}
-                </div>
-
-                <!-- Lastname -->
-                <div class="sm:col-span-3" id="lastname-input">
-                  {{ if isset .Errors }}
-                    {{ template "partials/text_input"
-                      map "Label" "Nom de famille"
-                      "ID" "lastname"
-                      "Autocomplete" "family-name"
-                      "Value" .Lastname
-                      "Placeholder" "Smith"
-                      "Error" .Errors.Lastname
-                    }}
-                  {{ else }}
-                    {{ template "partials/text_input"
-                      map "Label" "Nom de famille"
-                      "ID" "lastname"
-                      "Autocomplete" "family-name"
-                      "Value" ""
-                      "Placeholder" "Smith"
-                    }}
-                  {{ end }}
-                </div>
+              <div class="mt-3 sm:col-span-4" id="fullname-input">
+                {{ if isset .Errors }}
+                  {{ template "partials/text_input"
+                    map "Label" "Identité"
+                    "ID" "fullname"
+                    "Autocomplete" "name"
+                    "Value" .Fullname
+                    "Placeholder" "John Smith"
+                    "Error" .Errors.Fullname
+                  }}
+                {{ else }}
+                  {{ template
+                    "partials/text_input"
+                    map "Label" "Identité"
+                    "ID" "fullname"
+                    "Autocomplete" "name"
+                    "Value" ""
+                    "Placeholder" "John Smith"
+                  }}
+                {{ end }}
               </div>
 
               <!-- Filters -->

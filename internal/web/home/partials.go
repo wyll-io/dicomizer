@@ -11,10 +11,9 @@ import (
 func handlePatientRowEdit(w http.ResponseWriter, r *http.Request) {
 	tmpl := r.Context().Value(webContext.Templates).(webContext.TemplatesValues)["home"]
 	if err := tmpl.ExecuteTemplate(w, "partials/patient_row_edit", map[string]string{
-		"Firstname": r.URL.Query().Get("firstname"),
-		"Lastname":  r.URL.Query().Get("lastname"),
-		"Filters":   r.URL.Query().Get("filters"),
-		"UUID":      r.URL.Query().Get("uuid"),
+		"Fullname": r.URL.Query().Get("fullname"),
+		"Filters":  r.URL.Query().Get("filters"),
+		"PK":     r.URL.Query().Get("pk"),
 	}); err != nil {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -24,10 +23,9 @@ func handlePatientRowEdit(w http.ResponseWriter, r *http.Request) {
 func handlePatientRow(w http.ResponseWriter, r *http.Request) {
 	tmpl := r.Context().Value(webContext.Templates).(webContext.TemplatesValues)["home"]
 	if err := tmpl.ExecuteTemplate(w, "partials/patient_row", map[string]string{
-		"Firstname": r.URL.Query().Get("firstname"),
-		"Lastname":  r.URL.Query().Get("lastname"),
-		"Filters":   r.URL.Query().Get("filters"),
-		"UUID":      r.URL.Query().Get("uuid"),
+		"Fullname": r.URL.Query().Get("fullname"),
+		"Filters":  r.URL.Query().Get("filters"),
+		"PK":     r.URL.Query().Get("pk"),
 	}); err != nil {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -49,20 +47,12 @@ func handleValidateSingleInput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch id {
-	case "firstname":
-		d["Autocomplete"] = "given-name"
-		d["Label"] = "Prénom"
-		d["Placeholder"] = "Prénom"
-		if len(v) < 2 {
-			d["Error"] = "Le prénom doit contenir au moins 2 caractères"
-			d["OK"] = false
-		}
-	case "lastname":
-		d["Autocomplete"] = "family-name"
-		d["Label"] = "Nom de famille"
-		d["Placeholder"] = "Nom"
-		if len(v) < 2 {
-			d["Error"] = "Le nom doit contenir au moins 2 caractères"
+	case "fullname":
+		d["Autocomplete"] = "name"
+		d["Label"] = "Identité"
+		d["Placeholder"] = "John Smith"
+		if len(v) < 4 {
+			d["Error"] = "L'identité doit contenir au moins 4 caractères"
 			d["OK"] = false
 		}
 	case "filters":

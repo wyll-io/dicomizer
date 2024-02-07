@@ -2,6 +2,7 @@ package home
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	webContext "github.com/wyll-io/dicomizer/internal/web/context"
@@ -16,6 +17,13 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
+	}
+
+	for i := range patients {
+		// * expensive operation but sufficient for now
+		new := patients[i]
+		new.PK = strings.Replace(new.PK, "PATIENT#", "", 1)
+		patients[i] = new
 	}
 
 	tmpl := ctx.Value(webContext.Templates).(webContext.TemplatesValues)["home"]

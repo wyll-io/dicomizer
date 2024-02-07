@@ -8,8 +8,7 @@ import (
 type Table struct {
 	PK        string    `dynamodbav:"pk"`
 	SK        string    `dynamodbav:"sk"`
-	Firstname string    `dynamodbav:"firstname"`
-	Lastname  string    `dynamodbav:"lastname"`
+	Fullname string    `dynamodbav:"fullname"`
 	Filters   string    `dynamodbav:"filters"`
 	Hash      string    `dynamodbav:"hash"`
 	Filename  string    `dynamodbav:"filename"`
@@ -21,8 +20,7 @@ type Table struct {
 type PatientInfo struct {
 	PK        string    `dynamodbav:"pk"`
 	SK        string    `dynamodbav:"sk"`
-	Firstname string    `dynamodbav:"firstname"`
-	Lastname  string    `dynamodbav:"lastname"`
+	Fullname string    `dynamodbav:"fullname"`
 	Filters   string    `dynamodbav:"filters"`
 	CreatedAt time.Time `dynamodbav:"created_at"`
 	UpdatedAt time.Time `dynamodbav:"updated_at"`

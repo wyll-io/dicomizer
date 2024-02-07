@@ -13,8 +13,6 @@ var (
 )
 
 func RedirectError(w http.ResponseWriter, r *http.Request, code int, msg string) {
-	fmt.Println(msg)
-
 	params := url.Values{}
 	params.Add("code", strconv.Itoa(code))
 	params.Add("message", msg)

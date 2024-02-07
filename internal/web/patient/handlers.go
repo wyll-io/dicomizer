@@ -1,6 +1,7 @@
 package patient
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -19,7 +20,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	iCtxV := ctx.Value(webContext.Internal).(webContext.InternalValues)
-	if err := iCtxV.DB.DeletePatient(ctx, mux.Vars(r)["pk"]); err != nil {
+	if err := iCtxV.DB.DeletePatient(ctx, fmt.Sprintf("PATIENT#%s", mux.Vars(r)["pk"])); err != nil {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -76,10 +77,10 @@ func update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	patient := dao.PatientInfo{
-		PK:        mux.Vars(r)["pk"],
-		Firstname: r.FormValue("firstname"),
-		Lastname:  r.FormValue("lastname"),
-		Filters:   r.FormValue("filters"),
+		PK:       fmt.Sprintf("PATIENT#%s", mux.Vars(r)["pk"]),
+		SK:       "INFO#0",
+		Fullname: r.FormValue("fullname"),
+		Filters:  r.FormValue("filters"),
 	}
 	ctx := r.Context()
 	iCtxV := ctx.Value(webContext.Internal).(webContext.InternalValues)
@@ -91,6 +92,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if v := r.Header.Get("DICOMIZER-PARTIAL"); v != "" {
+		patient.PK = strings.Replace(patient.PK, "PATIENT#", "", 1)
 		keys := strings.Split(v, ",")
 		tmpl := ctx.Value(webContext.Templates).(webContext.TemplatesValues)[keys[0]]
 		if len(keys) == 2 {
@@ -112,28 +114,23 @@ func create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	patient := dao.PatientInfo{
-		Firstname: r.FormValue("firstname"),
-		Lastname:  r.FormValue("lastname"),
-		Filters:   r.FormValue("filters"),
+		Fullname: r.FormValue("fullname"),
+		Filters:  r.FormValue("filters"),
 	}
 	formErrors := map[string]string{
-		"Firstname": "",
-		"Lastname":  "",
-		"Filters":   "",
+		"Fullname": "",
+		"Filters":  "",
 	}
 	ctx := r.Context()
 
-	if patient.Firstname == "" || len(patient.Firstname) < 2 {
-		formErrors["Firstname"] = "Le prénom est obligatoire et doit contenir au moins 2 caractères"
-	}
-	if patient.Lastname == "" || len(patient.Lastname) < 2 {
-		formErrors["Lastname"] = "Le nom de famille est obligatoire et doit contenir au moins 2 caractères"
+	if patient.Fullname == "" || len(patient.Fullname) < 2 {
+		formErrors["Fullname"] = "Le prénom est obligatoire et doit contenir au moins 2 caractères"
 	}
 	if patient.Filters == "" || len(patient.Filters) < 2 {
 		formErrors["Filters"] = "Les filtres sont obligatoires et doivent contenir au moins 2 caractères"
 	}
 
-	if formErrors["Firstname"] != "" || formErrors["Lastname"] != "" || formErrors["Filters"] != "" {
+	if formErrors["Fullname"] != "" || formErrors["Filters"] != "" {
 		if v := r.Header.Get("DICOMIZER-PARTIAL-400"); v != "" {
 			keys := strings.Split(v, ",")
 			tmpl := ctx.Value(webContext.Templates).(webContext.TemplatesValues)[keys[0]]
@@ -141,10 +138,9 @@ func create(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 
 			if err := tmpl.ExecuteTemplate(w, keys[1], map[string]interface{}{
-				"Errors":    formErrors,
-				"Firstname": patient.Firstname,
-				"Lastname":  patient.Lastname,
-				"Filters":   patient.Filters,
+				"Errors":   formErrors,
+				"Fullname": patient.Fullname,
+				"Filters":  patient.Filters,
 			}); err != nil {
 				webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 			}
@@ -162,6 +158,8 @@ func create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if v := r.Header.Get("DICOMIZER-PARTIAL"); v != "" {
+		patient.PK = strings.Replace(patient.PK, "PATIENT#", "", 1)
+
 		keys := strings.Split(v, ",")
 		tmpl := ctx.Value(webContext.Templates).(webContext.TemplatesValues)[keys[0]]
 		if len(keys) == 2 {

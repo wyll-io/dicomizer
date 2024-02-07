@@ -120,6 +120,7 @@ If no arguments are provided, the server will use the environment variables:
 					Category:    "AWS",
 					Usage:       "DynamoDB table name",
 					DefaultText: AWS_DYNAMODB_TABLE,
+					Value:       AWS_DYNAMODB_TABLE,
 					EnvVars:     []string{"DYNAMODB_TABLE"},
 				},
 			},

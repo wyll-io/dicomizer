@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	dao "github.com/wyll-io/dicomizer/internal/DAO"
 )
@@ -72,23 +73,32 @@ func (db DB) AddPatientDCM(ctx context.Context, pk string, data *dao.DCMInfo) er
 // SearchPatientInfo searches for patient info by fullname
 // (case sensitive, dynamodb doesn't implement full-text search).
 func (db DB) SearchPatientInfo(ctx context.Context, fullname string) ([]dao.PatientInfo, error) {
-	// search for patient info
-	pkEx := expression.Key("pk").BeginsWith("PATIENT#")
-	skEx := expression.Key("sk").Equal(expression.Value("INFO#0"))
-	fullnameEx := expression.Key("fullname").BeginsWith(fullname)
+	filterExpr := expression.And(
+		expression.Name("pk").BeginsWith("PATIENT#"),
+		expression.Name("sk").Equal(expression.Value("INFO#0")),
+		expression.Name("fullname").Contains(fullname),
+	)
+	projExpr := expression.NamesList(
+		expression.Name("pk"),
+		expression.Name("sk"),
+		expression.Name("filters"),
+		expression.Name("fullname"),
+	)
 
 	expr, err := expression.NewBuilder().
-		WithKeyCondition(pkEx.And(skEx).And(fullnameEx)).
+		WithFilter(filterExpr).
+		WithProjection(projExpr).
 		Build()
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := db.Client.Query(ctx, &dynamodb.QueryInput{
+	res, err := db.Client.Scan(ctx, &dynamodb.ScanInput{
 		TableName:                 &db.Table,
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
-		KeyConditionExpression:    expr.KeyCondition(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
 	})
 	if err != nil {
 		return nil, err
@@ -120,22 +130,31 @@ func (db DB) SearchPatientInfo(ctx context.Context, fullname string) ([]dao.Pati
 
 // GetPatientInfo returns all patients info.
 func (db DB) GetPatientsInfo(ctx context.Context) ([]dao.PatientInfo, error) {
-	// get all patients info
-	pkEx := expression.Key("pk").BeginsWith("PATIENT#")
-	skEx := expression.Key("sk").Equal(expression.Value("INFO#0"))
+	filterExpr := expression.And(
+		expression.Name("pk").BeginsWith("PATIENT#"),
+		expression.Name("sk").Equal(expression.Value("INFO#0")),
+	)
+	projExpr := expression.NamesList(
+		expression.Name("pk"),
+		expression.Name("sk"),
+		expression.Name("filters"),
+		expression.Name("fullname"),
+	)
 
 	expr, err := expression.NewBuilder().
-		WithKeyCondition(pkEx.And(skEx)).
+		WithFilter(filterExpr).
+		WithProjection(projExpr).
 		Build()
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := db.Client.Query(ctx, &dynamodb.QueryInput{
+	res, err := db.Client.Scan(ctx, &dynamodb.ScanInput{
 		TableName:                 &db.Table,
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
-		KeyConditionExpression:    expr.KeyCondition(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
 	})
 	if err != nil {
 		return nil, err
@@ -168,23 +187,12 @@ func (db DB) GetPatientsInfo(ctx context.Context) ([]dao.PatientInfo, error) {
 func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.PatientInfo) error {
 	data.UpdatedAt = time.Now()
 
-	filterEx := expression.Name("pk").Equal(expression.Value(pk)).
-		And(expression.Name("sk").Equal(expression.Value("INFO#0")))
-
-	updateEx := expression.Set(expression.Name("filters"), expression.Value(data.Filters))
-	updateEx.Set(expression.Name("lastname"), expression.Value(data.Lastname))
-	updateEx.Set(expression.Name("firstname"), expression.Value(data.Firstname))
-	updateEx.Set(expression.Name("updated_at"), expression.Value(data.UpdatedAt))
+	updateEx := expression.Set(expression.Name("filters"), expression.Value(data.Filters)).
+		Set(expression.Name("fullname"), expression.Value(data.Fullname)).
+		Set(expression.Name("updated_at"), expression.Value(data.UpdatedAt))
 
 	updateExpr, err := expression.NewBuilder().
 		WithUpdate(updateEx).
-		Build()
-	if err != nil {
-		return err
-	}
-
-	filterExpr, err := expression.NewBuilder().
-		WithFilter(filterEx).
 		Build()
 	if err != nil {
 		return err
@@ -195,23 +203,22 @@ func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.Patient
 		ExpressionAttributeNames:  updateExpr.Names(),
 		ExpressionAttributeValues: updateExpr.Values(),
 		UpdateExpression:          updateExpr.Update(),
-		Key:                       filterExpr.Values(),
+		Key: map[string]types.AttributeValue{
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: "INFO#0"},
+		},
 	})
 
 	return err
 }
 
 func (db DB) DeletePatient(ctx context.Context, pk string) error {
-	filterEx := expression.Key("pk").Equal(expression.Value(pk))
-
-	filterExpr, err := expression.NewBuilder().WithKeyCondition(filterEx).Build()
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+	_, err := db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: &db.Table,
-		Key:       filterExpr.Values(),
+		Key: map[string]types.AttributeValue{
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: "INFO#0"},
+		},
 	})
 
 	return err

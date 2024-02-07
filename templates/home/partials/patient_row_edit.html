@@ -1,38 +1,22 @@
 {{ define "partials/patient_row_edit" }}
-  <tr id="tr-{{ .UUID }}">
+  <tr id="tr-{{ .PK }}">
     <form
-      hx-put="/patient/{{ .UUID }}"
-      hx-target="#tr-{{ .UUID }}"
+      hx-put="/patient/{{ .PK }}"
+      hx-target="#tr-{{ .PK }}"
       hx-swap="outerHTML"
       hx-headers='{"DICOMIZER-PARTIAL": "home,partials/patient_row"}'
     >
-      <td
-        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0"
-      >
-        <div>
-          <label for="firstname" class="sr-only">Prénom</label>
-          <input
-            type="text"
-            name="firstname"
-            id="firstname"
-            class="input-normal"
-            placeholder="Prénom"
-            autocomplete="given-name"
-            value="{{ .Firstname }}"
-          />
-        </div>
-      </td>
       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
         <div>
-          <label for="lastname" class="sr-only">Nom de famille</label>
+          <label for="fullname" class="sr-only">Identité</label>
           <input
             type="text"
-            name="lastname"
-            id="lastname"
+            name="fullname"
+            id="fullname"
             class="input-normal"
             placeholder="Nom"
-            autocomplete="family-name"
-            value="{{ .Lastname }}"
+            autocomplete="name"
+            value="{{ .Fullname }}"
           />
         </div>
       </td>
@@ -76,8 +60,8 @@
           <button
             type="button"
             hx-get="/partials/patient-row"
-            hx-vals='{"firstname": "{{ .Firstname }}", "lastname": "{{ .Lastname }}", "filters": "{{ .Filters }}", "uuid": "{{ .UUID }}"}'
-            hx-target="#tr-{{ .UUID }}"
+            hx-vals='{"fullname": "{{ .Fullname }}", "filters": "{{ .Filters }}", "pk": "{{ .PK }}"}'
+            hx-target="#tr-{{ .PK }}"
             hx-swap="outerHTML"
             class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
           >
