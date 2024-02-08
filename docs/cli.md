@@ -10,7 +10,7 @@ Example:
 
 ```bash
 # Start the server on port 3000, listening on localhost and fetch data every day at midnight
-$ dicomizer start localhost:3000 "0 0 * * *"
+$ dicomizer start localhost:3000 "0 0 * * *" --pacs "10.0.0.56:104" --aet "MY_AET" --aec "THEIR_AEC" --aem "MY_AEM"
 ```
 
 ### `anonymize`
@@ -24,15 +24,4 @@ Example:
 $ dicomizer anonymize /path/to/file.dcm
 # Anonymize a DICOM file located at /path/to/file.dcm and output it in `/another/path/ano.dcm`
 $ dicomizer anonymize /path/to/file.dcm /another/path/ano.dcm
-```
-
-### `upload`
-
-Upload DICOM files to configured S3 and add it to DynamoDB. The process also includes anonymization.
-
-Example:
-
-```bash
-# Upload DICOM files located at /path/to/{file1,file2}.dcm
-$ dicomizer upload /path/to/file1.dcm /path/to/file2.dcm
 ```

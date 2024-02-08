@@ -11,7 +11,6 @@ import (
 	"github.com/suyashkumar/dicom"
 	"github.com/urfave/cli/v2"
 	"github.com/wyll-io/dicomizer/internal/scheduler"
-	"github.com/wyll-io/dicomizer/internal/storage/glacier"
 	"github.com/wyll-io/dicomizer/internal/web"
 	"github.com/wyll-io/dicomizer/pkg/anonymize"
 )
@@ -79,34 +78,6 @@ var app = &cli.App{
 			},
 		},
 		{
-			Name:        "upload",
-			ArgsUsage:   "<input_file>...",
-			Description: "Upload DICOM files to AWS Glacier",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:        "dynamodb-table",
-					Category:    "AWS",
-					Usage:       "DynamoDB table name",
-					DefaultText: AWS_DYNAMODB_TABLE,
-					EnvVars:     []string{"DYNAMODB_TABLE"},
-				},
-			},
-			Action: func(ctx *cli.Context) error {
-				if !ctx.Args().Present() {
-					return fmt.Errorf("missing input file")
-				}
-
-				client := glacier.NewClient(awsCfg)
-				for _, arg := range ctx.Args().Slice() {
-					client.UploadFile(ctx.Context, arg, glacier.Options{
-						VaultName: "dicomizer",
-					})
-				}
-
-				return nil
-			},
-		},
-		{
 			Name: "start",
 			Description: `Start the DICOMizer server. 
 If no arguments are provided, the server will use the environment variables:
@@ -122,6 +93,34 @@ If no arguments are provided, the server will use the environment variables:
 					DefaultText: AWS_DYNAMODB_TABLE,
 					Value:       AWS_DYNAMODB_TABLE,
 					EnvVars:     []string{"DYNAMODB_TABLE"},
+				},
+				&cli.StringFlag{
+					Name:     "pacs",
+					Category: "DICOM",
+					Usage:    "PACS server",
+					Required: true,
+					EnvVars:  []string{"PACS_SERVER"},
+				},
+				&cli.StringFlag{
+					Name:     "aet",
+					Category: "DICOM",
+					Usage:    "AET",
+					Required: true,
+					EnvVars:  []string{"AET"},
+				},
+				&cli.StringFlag{
+					Name:     "aec",
+					Category: "DICOM",
+					Usage:    "AEC",
+					Required: true,
+					EnvVars:  []string{"AEC"},
+				},
+				&cli.StringFlag{
+					Name:     "aem",
+					Category: "DICOM",
+					Usage:    "AEM",
+					Required: true,
+					EnvVars:  []string{"AEM"},
 				},
 			},
 			Before: func(ctx *cli.Context) error {

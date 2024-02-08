@@ -27,13 +27,13 @@ dicomizer start 127.0.0.1:3000 "0 0 * * *"
 
 ## Actions
 
-- Right column, you can add a new patient with a `Firstname`, `Lastname` and DICOM tags to filter the patient on the PACS server (`;` separated). Filter syntax can either be `(GROUP,ELEMENT)=VALUE` or `GROUP,ELEMENT=VALUE`. Example:
+- Right column, you can add a new patient with an `Identity` and DICOM tags to filter the patient on the PACS server (`;` separated). Filter syntax can either be `(GROUP,ELEMENT)=VALUE` or `GROUP,ELEMENT=VALUE`. Example:
 
 ```
-Firstname: John
-Lastname: Doe
+Fullname: John Doe
 Tags: (0010,0020)=12345678;(0010,0010)=DOE^JOHN
 ```
+
 - Left column, you can see the list of patients that will be retrieved from the database (not the PACS). You can search for a patient by typing in the search bar. You can also delete a patient by clicking on the trash icon. Or modify its information by clicking on the pencil icon.
 
 - You can disconnect yourself by clicking on the `Se deconnecter` button.

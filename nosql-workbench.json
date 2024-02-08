@@ -23,7 +23,7 @@
       },
       "NonKeyAttributes": [
         {
-          "AttributeName": "Fullname",
+          "AttributeName": "fullname",
           "AttributeType": "S"
         },
         {
@@ -76,7 +76,7 @@
           "sk": {
             "S": "INFO#0"
           },
-          "Fullname": {
+          "fullname": {
             "S": "John Doe"
           },
           "filters": {
@@ -110,7 +110,7 @@
           "sk": {
             "S": "INFO#0"
           },
-          "Fullname": {
+          "fullname": {
             "S": "John Smith"
           },
           "filters": {
@@ -125,38 +125,14 @@
         "MySql": {}
       },
       "SampleDataFormats": {
-        "patient": [
-          "identifiers",
-          "UUID"
-        ],
-        "dcm": [
-          "identifiers",
-          "UUID"
-        ],
-        "firstname": [
-          "identifiers",
-          "First name"
-        ],
-        "lastname": [
-          "identifiers",
-          "Last name"
-        ],
-        "created_at": [
-          "date",
-          "Epoc/Unix date format"
-        ],
-        "updated_at": [
-          "date",
-          "Epoc/Unix date format"
-        ],
-        "deleted_at": [
-          "date",
-          "Epoc/Unix date format"
-        ],
-        "Fullname": [
-          "identifiers",
-          "Full name"
-        ]
+        "patient": ["identifiers", "UUID"],
+        "dcm": ["identifiers", "UUID"],
+        "firstname": ["identifiers", "First name"],
+        "lastname": ["identifiers", "Last name"],
+        "created_at": ["date", "Epoc/Unix date format"],
+        "updated_at": ["date", "Epoc/Unix date format"],
+        "deleted_at": ["date", "Epoc/Unix date format"],
+        "fullname": ["identifiers", "Full name"]
       },
       "BillingMode": "PROVISIONED",
       "ProvisionedCapacitySettings": {
