@@ -22,22 +22,22 @@ func AnonymizeDataset(dataset *dicom.Dataset) error {
 
 		switch t.value {
 		case EmptyAction, DeleteOrEmptyAction:
-			fmt.Printf("emptying tag %s\n", t.tag.String())
+			// fmt.Printf("emptying tag %s\n", t.tag.String())
 			if err := EmptyElementValue(el); err != nil {
 				return err
 			}
 		case ReplaceAction, EmptyOrReplaceAction, DeleteOrReplaceAction, DeleteOrEmptyOrReplaceAction:
-			fmt.Printf("replacing tag %s\n", t.tag.String())
+			// fmt.Printf("replacing tag %s\n", t.tag.String())
 			if err := ReplaceElementValue(el); err != nil {
 				return err
 			}
 		case DeleteAction:
-			fmt.Printf("deleting tag %s\n", t.tag.String())
+			// fmt.Printf("deleting tag %s\n", t.tag.String())
 			if err := DeleteElementValue(&dataset.Elements, t.tag, false); err != nil {
 				return err
 			}
 		case ReplaceUIDAction:
-			fmt.Printf("replacing tag UID %s\n", t.tag.String())
+			// fmt.Printf("replacing tag UID %s\n", t.tag.String())
 			if err := replaceElementUID(el); err != nil {
 				return err
 			}

@@ -4,5 +4,4 @@
 /.DS_STORE
 /build
 /.env
-/venv
-/misc/*.json
+/dicomizer

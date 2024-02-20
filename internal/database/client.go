@@ -50,26 +50,6 @@ func (db DB) AddPatientInfo(ctx context.Context, data *dao.PatientInfo) error {
 	return err
 }
 
-// AddPatientDCM adds a new DICOM file to the database.
-// PK, SK, CreatedAt and DeletedAt are automatically populated.
-func (db DB) AddPatientDCM(ctx context.Context, pk string, data *dao.DCMInfo) error {
-	data.PK = pk
-	data.SK = fmt.Sprintf("DCM#%s", uuid.New())
-	data.CreatedAt = time.Now()
-
-	item, err := attributevalue.MarshalMap(data)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: &db.Table,
-		Item:      item,
-	})
-
-	return err
-}
-
 // SearchPatientInfo searches for patient info by fullname
 // (case sensitive, dynamodb doesn't implement full-text search).
 func (db DB) SearchPatientInfo(ctx context.Context, fullname string) ([]dao.PatientInfo, error) {
@@ -184,6 +164,54 @@ func (db DB) GetPatientsInfo(ctx context.Context) ([]dao.PatientInfo, error) {
 	return patients, nil
 }
 
+// GetPatientInfo searches for patient info by fullname
+// (case sensitive, dynamodb doesn't implement full-text search).
+func (db DB) GetPatientInfo(ctx context.Context, pk string) (dao.PatientInfo, error) {
+	filterExpr := expression.And(
+		expression.Name("pk").Equal(expression.Value(fmt.Sprintf("PATIENT#%s", pk))),
+		expression.Name("sk").Equal(expression.Value("INFO#0")),
+	)
+	projExpr := expression.NamesList(
+		expression.Name("pk"),
+		expression.Name("sk"),
+		expression.Name("filters"),
+		expression.Name("fullname"),
+	)
+
+	expr, err := expression.NewBuilder().
+		WithFilter(filterExpr).
+		WithProjection(projExpr).
+		Build()
+	if err != nil {
+		return dao.PatientInfo{}, err
+	}
+
+	res, err := db.Client.Scan(ctx, &dynamodb.ScanInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+	})
+	if err != nil {
+		return dao.PatientInfo{}, err
+	}
+
+	if res.Count == 0 {
+		return dao.PatientInfo{}, nil
+	}
+	if res.Count > 1 {
+		return dao.PatientInfo{}, fmt.Errorf("multiple patients found. This should not happen")
+	}
+
+	pInfo := dao.PatientInfo{}
+	if err := attributevalue.UnmarshalMap(res.Items[0], &pInfo); err != nil {
+		return dao.PatientInfo{}, err
+	}
+
+	return pInfo, nil
+}
+
 func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.PatientInfo) error {
 	data.UpdatedAt = time.Now()
 
@@ -219,6 +247,62 @@ func (db DB) DeletePatient(ctx context.Context, pk string) error {
 			"pk": &types.AttributeValueMemberS{Value: pk},
 			"sk": &types.AttributeValueMemberS{Value: "INFO#0"},
 		},
+	})
+
+	return err
+}
+
+// CheckDCM searches for patient info by fullname
+// (case sensitive, dynamodb doesn't implement full-text search).
+func (db DB) CheckDCM(ctx context.Context, hash, filename string) (bool, error) {
+	filterExpr := expression.And(
+		expression.Name("pk").BeginsWith("PATIENT#"),
+		expression.Name("sk").BeginsWith("DCM#"),
+		expression.Name("filename").Equal(expression.Value(filename)),
+		expression.Name("hash").Equal(expression.Value(hash)),
+	)
+	projExpr := expression.NamesList(
+		expression.Name("pk"),
+		expression.Name("sk"),
+	)
+
+	expr, err := expression.NewBuilder().
+		WithFilter(filterExpr).
+		WithProjection(projExpr).
+		Build()
+	if err != nil {
+		return false, err
+	}
+
+	res, err := db.Client.Scan(ctx, &dynamodb.ScanInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return res.Count > 0, nil
+}
+
+// AddDCM adds a new DICOM file to the database.
+// PK, SK, CreatedAt and DeletedAt are automatically populated.
+func (db DB) AddDCM(ctx context.Context, pk string, data *dao.DCMInfo) error {
+	data.PK = pk
+	data.SK = fmt.Sprintf("DCM#%s", uuid.New())
+	data.CreatedAt = time.Now()
+
+	item, err := attributevalue.MarshalMap(data)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Client.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: &db.Table,
+		Item:      item,
 	})
 
 	return err

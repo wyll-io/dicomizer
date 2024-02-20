@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsG "github.com/aws/aws-sdk-go-v2/service/glacier"
+	"github.com/wyll-io/dicomizer/internal/storage"
 )
 
 type Options struct {
@@ -16,9 +17,7 @@ type Options struct {
 	VaultName          string
 }
 
-func (c *Client) UploadFile(ctx context.Context, fp string, params interface{}) error {
-	opts := params.(Options)
-
+func (c *Client) UploadFile(ctx context.Context, fp string, opts storage.Options) error {
 	f, err := os.Open(fp)
 	if err != nil {
 		return err
@@ -46,9 +45,7 @@ func (c *Client) UploadFile(ctx context.Context, fp string, params interface{}) 
 	return nil
 }
 
-func (c *Client) Upload(ctx context.Context, r io.Reader, params interface{}) error {
-	opts := params.(Options)
-
+func (c *Client) Upload(ctx context.Context, r io.Reader, opts storage.Options) error {
 	h := sha256.New()
 	if _, err := io.Copy(h, r); err != nil {
 		return err

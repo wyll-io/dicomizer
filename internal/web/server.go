@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/wyll-io/dicomizer/internal/database"
+	dao "github.com/wyll-io/dicomizer/internal/DAO"
 	"github.com/wyll-io/dicomizer/internal/web/authentication"
 	webContext "github.com/wyll-io/dicomizer/internal/web/context"
 	webError "github.com/wyll-io/dicomizer/internal/web/error"
@@ -63,10 +63,8 @@ func init() {
 	)
 }
 
-func RegisterHandlers(awsCfg aws.Config, dynamoDBTable string) http.Handler {
-	internalCtx = webContext.InternalValues{
-		DB: database.New(awsCfg, dynamoDBTable),
-	}
+func RegisterHandlers(awsCfg aws.Config, db dao.DBActions) http.Handler {
+	internalCtx = webContext.InternalValues{DB: db}
 
 	r := mux.NewRouter()
 
