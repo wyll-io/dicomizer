@@ -4,11 +4,14 @@ WORKDIR /app
 
 COPY . .
 
+RUN apt-get update
+RUN apt-get install -y bzip2
+
 RUN go get
 RUN CGO_ENABLED=0 go build -o dicomizer .
 
 RUN wget https://dicom.offis.de/download/dcmtk/dcmtk368/bin/dcmtk-3.6.8-linux-x86_64-static.tar.bz2
-RUN tar -xvf dcmtk-3.6.8-linux-x86_64-static.tar.bz2
+RUN tar -xjf dcmtk-3.6.8-linux-x86_64-static.tar.bz2
 
 FROM gcr.io/distroless/static-debian12
 
