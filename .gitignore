@@ -5,3 +5,4 @@
 /build
 /.env
 /dicomizer
+/github_token

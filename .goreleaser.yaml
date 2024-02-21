@@ -27,3 +27,17 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+release:
+  github:
+    owner: wyll-io
+    name: dicomizer
+  extra_files:
+    - glob: LICENSE
+    - glob: README.md
+    - glob: CHANGELOG.md
+    - glob: public/**/*
+    - glob: templates/**/*
+
+env_files:
+  github_token: ./github_token
