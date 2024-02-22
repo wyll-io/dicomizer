@@ -1,6 +1,7 @@
 # Dicomizer
 
 Tool suite for DICOM file manipulation, anonymization and data exchange over HTTP(s).
+Documentation can be found [here](https://github.com/wyll-io/dicomizer/tree/main/docs)
 
 ## Package structure
 
