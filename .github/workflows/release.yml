@@ -29,6 +29,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      packages: write
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -38,13 +46,31 @@ jobs:
       - name: Fetch tags
         run: git fetch --force --tags
 
+      - name: Login to GitHub registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.21"
-
-      - name: Build
-        run: go build -v ./...
 
       - name: Release
         env:
@@ -52,4 +78,4 @@ jobs:
         run: |
           go install github.com/goreleaser/goreleaser@latest
           go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
-          goreleaser release --clean --release-notes <(git-chglog -t .chglog/RELEASE_CHANGELOG.tpl.md)
+          goreleaser release --clean --release-notes <(git-chglog -t .chglog/RELEASE.tpl.md)

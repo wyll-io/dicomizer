@@ -2,7 +2,7 @@ style: github
 template: CHANGELOG.tpl.md
 info:
   title: CHANGELOG
-  repository_url: https://github-wyllio/wyll-io/dicomizer
+  repository_url: https://github.com/wyll-io/dicomizer
 options:
   commits:
     # filters:

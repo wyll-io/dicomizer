@@ -12,7 +12,6 @@ builds:
 
 archives:
   - format: tar.gz
-    # this name template makes the OS and Arch compatible with the results of `uname`.
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -20,24 +19,16 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
-
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
+    files:
+      - README.md
+      - CHANGELOG.md
+      - docs/*
+      - public/*
+      - templates/*
+      - src: misc/nosql-workbench.json
+        dst: nosql-workbench.json
 
 release:
   github:
     owner: wyll-io
     name: dicomizer
-  extra_files:
-    - glob: LICENSE
-    - glob: README.md
-    - glob: CHANGELOG.md
-    - glob: public/**/*
-    - glob: templates/**/*
-
-env_files:
-  github_token: ./github_token
