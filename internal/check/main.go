@@ -31,7 +31,6 @@ func CheckPatientDCM(
 
 	files, err := os.ReadDir(tmp)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
@@ -41,7 +40,6 @@ func CheckPatientDCM(
 			panic("unexpected directory")
 		}
 
-		fmt.Println(f.Name())
 		if strings.Contains(f.Name(), "rsp") {
 		  fmt.Println("Skipping query file...")
 		  continue
@@ -49,8 +47,7 @@ func CheckPatientDCM(
 
 		dataset, err := anonymizeDataset(filepath.Join(tmp, f.Name()))
 		if err != nil {
-			fmt.Printf("failed to anonymize: %s", f.Name())
-			return err
+      return fmt.Errorf("failed to anonymize dataset: %v", err)
 		}
 
 		outF, err := os.OpenFile(filepath.Join(tmp, fmt.Sprintf("%s.anonymized", f.Name())), os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
@@ -60,27 +57,27 @@ func CheckPatientDCM(
 		defer outF.Close()
 
 		if err := dicom.Write(outF, dataset); err != nil {
-			fmt.Printf("failed to create anonymized file: %s", f.Name())
-			return err
+			return fmt.Errorf("failed to write anonymized dataset: %v", err)
 		}
 
 		h, err := getHash(outF)
 		if err != nil {
 			return err
 		}
+    outF.Close() // ignore closing error as this should never been called before
 
 		found, err := dbClient.CheckDCM(ctx, h, f.Name())
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to check if DCM exists in DB: %v", err)
 		}
 		if found {
 			fmt.Printf("DCM file found in DB, skipping: %s\n", f.Name())
 			continue
 		}
+
 		fmt.Printf("DCM file not found in DB, uploading: %s\n", f.Name())
-		err = processFoundDCM(ctx, storageClient, dbClient, filepath.Join(tmp, f.Name()), h, pInfo.PK)
-		if err != nil {
-			return err
+    if err := processFoundDCM(ctx, storageClient, dbClient, filepath.Join(tmp, f.Name()), h, pInfo.PK); err != nil {
+			return fmt.Errorf("failed to upload anonymized DCM file: %v", err)
 		}
 	}
 
