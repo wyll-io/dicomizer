@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"path/filepath"
 
 	"github.com/suyashkumar/dicom"
@@ -40,8 +41,15 @@ func CheckPatientDCM(
 			panic("unexpected directory")
 		}
 
+		fmt.Println(f.Name())
+		if strings.Contains(f.Name(), "rsp") {
+		  fmt.Println("Skipping query file...")
+		  continue
+		}
+
 		dataset, err := anonymizeDataset(filepath.Join(tmp, f.Name()))
 		if err != nil {
+			fmt.Printf("failed to anonymize: %s", f.Name())
 			return err
 		}
 
@@ -49,8 +57,10 @@ func CheckPatientDCM(
 		if err != nil {
 			return err
 		}
+		defer outF.Close()
 
 		if err := dicom.Write(outF, dataset); err != nil {
+			fmt.Printf("failed to create anonymized file: %s", f.Name())
 			return err
 		}
 
