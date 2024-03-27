@@ -50,7 +50,8 @@ func CheckPatientDCM(
       return fmt.Errorf("failed to anonymize dataset: %v", err)
 		}
 
-		outF, err := os.OpenFile(filepath.Join(tmp, fmt.Sprintf("%s.anonymized", f.Name())), os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
+    outFilePath := filepath.Join(tmp, fmt.Sprintf("%s.anonymized", f.Name()))
+		outF, err := os.OpenFile(outFilePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
 		if err != nil {
 			return err
 		}
@@ -59,12 +60,12 @@ func CheckPatientDCM(
 		if err := dicom.Write(outF, dataset); err != nil {
 			return fmt.Errorf("failed to write anonymized dataset: %v", err)
 		}
+    outF.Close() // ignore closing error as this should never been called before
 
-		h, err := getHash(outF)
+		h, err := getHash(outFilePath)
 		if err != nil {
 			return err
 		}
-    outF.Close() // ignore closing error as this should never been called before
 
 		found, err := dbClient.CheckDCM(ctx, h, f.Name())
 		if err != nil {
@@ -86,9 +87,14 @@ func CheckPatientDCM(
 	return os.RemoveAll(tmp)
 }
 
-func getHash(r io.Reader) (string, error) {
+func getHash(fp string) (string, error) {
+  f, err := os.Open(fp)
+  if err != nil {
+    return "", err
+  }
+
 	hasher := sha256.New()
-	if _, err := io.Copy(hasher, r); err != nil {
+	if _, err := io.Copy(hasher, f); err != nil {
 		return "", err
 	}
 
