@@ -95,12 +95,10 @@ func (db DB) SearchPatientInfo(ctx context.Context, fullname string) ([]dao.Pati
 			return nil, err
 		}
 
-		count, err := db.countPatientDCM(ctx, patient.PK)
+		_, err := db.countPatientDCM(ctx, patient.PK)
 		if err != nil {
 			return nil, err
 		}
-
-		patient.DCMCount = count
 
 		patients = append(patients, patient)
 	}
@@ -151,12 +149,10 @@ func (db DB) GetPatientsInfo(ctx context.Context) ([]dao.PatientInfo, error) {
 			return nil, err
 		}
 
-		count, err := db.countPatientDCM(ctx, patient.PK)
+		_, err := db.countPatientDCM(ctx, patient.PK)
 		if err != nil {
 			return nil, err
 		}
-
-		patient.DCMCount = count
 
 		patients = append(patients, patient)
 	}

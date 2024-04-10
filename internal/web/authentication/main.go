@@ -71,7 +71,7 @@ func authenticate(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		Expires:  time.Now().Add(time.Hour * 24 * 7),
-		Secure:   true,
+		Secure:   false,
 		HttpOnly: true,
 	})
 

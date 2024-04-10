@@ -25,8 +25,6 @@ type PatientInfo struct {
 	CreatedAt time.Time `dynamodbav:"created_at"`
 	UpdatedAt time.Time `dynamodbav:"updated_at"`
 	DeletedAt time.Time `dynamodbav:"deleted_at"`
-
-	DCMCount uint
 }
 
 type DCMInfo struct {

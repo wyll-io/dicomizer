@@ -2,9 +2,7 @@ package check
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"path/filepath"
@@ -88,17 +86,18 @@ func CheckPatientDCM(
 }
 
 func getHash(fp string) (string, error) {
-  f, err := os.Open(fp)
-  if err != nil {
-    return "", err
-  }
+ //  f, err := os.Open(fp)
+ //  if err != nil {
+ //    return "", err
+ //  }
+	//
+	// hasher := sha256.New()
+	// if _, err := io.Copy(hasher, f); err != nil {
+	// 	return "", err
+	// }
 
-	hasher := sha256.New()
-	if _, err := io.Copy(hasher, f); err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+	// return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+  return "hash disabled for investigation", nil
 }
 
 func processFoundDCM(
