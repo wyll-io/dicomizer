@@ -1,6 +1,6 @@
 module github.com/wyll-io/dicomizer
 
-go 1.22.1
+go 1.22
 
 // DICOM Dependencies
 require github.com/suyashkumar/dicom v1.0.7
