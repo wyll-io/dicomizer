@@ -2,10 +2,17 @@
 ## [Unreleased]
 
 
+<a name="v1.0.2"></a>
+## [v1.0.2] - 2024-04-15
+### Fix
+- **S3:** fix data sent to S3
+
+
 <a name="v1.0.1"></a>
-## [v1.0.1] - 2024-04-12
+## [v1.0.1] - 2024-04-15
 ### Chore
 - **config:** move nosq-workbench schema
+- **release:** release v1.0.1
 - **tools:** update flake.nix, css and htmx version
 
 ### Doc
@@ -47,5 +54,6 @@
 - **gui:** add htmx 400 response add_patient
 
 
-[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.2...HEAD
+[v1.0.2]: https://github.com/wyll-io/dicomizer/compare/v1.0.1...v1.0.2
 [v1.0.1]: https://github.com/wyll-io/dicomizer/compare/v1.0.0...v1.0.1
