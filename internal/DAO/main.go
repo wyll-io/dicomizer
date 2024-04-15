@@ -37,7 +37,7 @@ type DCMInfo struct {
 }
 
 type DBActions interface {
-	GetPatientInfo(ctx context.Context, pk string) (PatientInfo, error)
+	GetPatientInfo(ctx context.Context, pk string) (*PatientInfo, error)
 	GetPatientsInfo(ctx context.Context) ([]PatientInfo, error)
 	SearchPatientInfo(ctx context.Context, fullname string) ([]PatientInfo, error)
 

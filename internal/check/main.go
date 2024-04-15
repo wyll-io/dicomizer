@@ -1,11 +1,14 @@
 package check
 
 import (
+	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"github.com/suyashkumar/dicom"
 	dao "github.com/wyll-io/dicomizer/internal/DAO"
@@ -18,7 +21,7 @@ func CheckPatientDCM(
 	ctx context.Context,
 	storageClient storage.StorageAction,
 	dbClient dao.DBActions,
-	pacs, aet, aec, aem string,
+	pacs, aet, aec, aem, labo string,
 	pInfo dao.PatientInfo,
 ) error {
 	fmt.Println("Fetching patients DCM files...")
@@ -39,84 +42,89 @@ func CheckPatientDCM(
 		}
 
 		if strings.Contains(f.Name(), "rsp") {
-		  fmt.Println("Skipping query file...")
-		  continue
+			fmt.Println("Skipping query file...")
+			continue
 		}
 
 		dataset, err := anonymizeDataset(filepath.Join(tmp, f.Name()))
 		if err != nil {
-      return fmt.Errorf("failed to anonymize dataset: %v", err)
+			return fmt.Errorf("failed to anonymize dataset: %v", err)
 		}
 
-    outFilePath := filepath.Join(tmp, fmt.Sprintf("%s.anonymized", f.Name()))
-		outF, err := os.OpenFile(outFilePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
-		if err != nil {
-			return err
-		}
-		defer outF.Close()
-
-		if err := dicom.Write(outF, dataset); err != nil {
+		data := bytes.NewBuffer(nil)
+		if err := dicom.Write(data, dataset); err != nil {
 			return fmt.Errorf("failed to write anonymized dataset: %v", err)
 		}
-    outF.Close() // ignore closing error as this should never been called before
 
-		h, err := getHash(outFilePath)
+		err = func() error {
+			h, err := getHash(data)
+			if err != nil {
+				return err
+			}
+
+      fileKey := fmt.Sprintf("%s/%s/%s", labo, strings.Replace(pInfo.PK, "PATIENT#", "", 1), f.Name())
+      found, err := dbClient.CheckDCM(ctx, hex.EncodeToString(h), fileKey)
+			if err != nil {
+				return fmt.Errorf("failed to check if DCM exists in DB: %v", err)
+			}
+			if found {
+				fmt.Printf("DCM file found in DB, skipping: %s\n", f.Name())
+				return nil
+			}
+
+			fmt.Printf("DCM file not found in DB, uploading: %s\n", f.Name())
+			if err := processFoundDCM(
+				ctx,
+				storageClient,
+				dbClient,
+				fileKey,
+				pInfo.PK,
+				h,
+				data,
+			); err != nil {
+				return fmt.Errorf("failed to upload anonymized DCM file: %v", err)
+			}
+
+			return nil
+		}()
 		if err != nil {
 			return err
-		}
-
-		found, err := dbClient.CheckDCM(ctx, h, f.Name())
-		if err != nil {
-			return fmt.Errorf("failed to check if DCM exists in DB: %v", err)
-		}
-		if found {
-			fmt.Printf("DCM file found in DB, skipping: %s\n", f.Name())
-			continue
-		}
-
-		fmt.Printf("DCM file not found in DB, uploading: %s\n", f.Name())
-    if err := processFoundDCM(ctx, storageClient, dbClient, filepath.Join(tmp, f.Name()), h, pInfo.PK); err != nil {
-			return fmt.Errorf("failed to upload anonymized DCM file: %v", err)
 		}
 	}
 
 	fmt.Println("Patient processed. Cleaning up...")
-
 	return os.RemoveAll(tmp)
 }
 
-func getHash(fp string) (string, error) {
- //  f, err := os.Open(fp)
- //  if err != nil {
- //    return "", err
- //  }
-	//
+func getHash(r io.Reader) ([]byte, error) {
 	// hasher := sha256.New()
-	// if _, err := io.Copy(hasher, f); err != nil {
-	// 	return "", err
+	// if _, err := io.Copy(hasher, r); err != nil {
+	// 	return nil, fmt.Errorf("failed to calculate sha256 hash for anonymized dataset: %v", err)
 	// }
+	//
+	// return hasher.Sum(nil), nil
 
-	// return fmt.Sprintf("%x", hasher.Sum(nil)), nil
-  return "hash disabled for investigation", nil
+  return []byte("disabled for debugging"), nil
 }
 
 func processFoundDCM(
 	ctx context.Context,
 	storageClient storage.StorageAction,
 	dbClient dao.DBActions,
-	fp, hash, pk string,
+	fileKey, pk string,
+	h []byte,
+	b *bytes.Buffer,
 ) error {
-	fname := filepath.Base(fp)
-	if err := storageClient.UploadFile(ctx, fp, storage.Options{
+	if err := storageClient.Upload(ctx, b, b.Len(), string(h), storage.Options{
 		Bucket: "dicomizer",
-		Key:    fname,
+		Key:    fileKey,
 	}); err != nil {
 		return err
 	}
 
 	return dbClient.AddDCM(ctx, pk, &dao.DCMInfo{
-		Hash:     hash,
-		Filename: fname,
+		Hash:     hex.EncodeToString(h),
+		Filename: fileKey,
 	})
 }
 

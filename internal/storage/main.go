@@ -20,6 +20,6 @@ type Options struct {
 }
 
 type StorageAction interface {
-	Upload(ctx context.Context, r io.Reader, opts Options) error
+	Upload(ctx context.Context, r io.Reader, length int, h string, opts Options) error
 	UploadFile(ctx context.Context, fp string, opts Options) error
 }

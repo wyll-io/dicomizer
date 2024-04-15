@@ -33,7 +33,7 @@ var (
 
 var app = &cli.App{
 	Name:    "dicomizer",
-	Version: "1.0.0",
+	Version: "1.0.1",
 	Before: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return nil
@@ -99,6 +99,14 @@ If no arguments are provided, the server will use the environment variables:
 					EnvVars:     []string{"DYNAMODB_TABLE"},
 				},
 				&cli.StringFlag{
+					Name:     "laboratory",
+					Category: "AWS",
+					Usage:    "LABORATORY",
+					Required: true,
+					EnvVars:  []string{"LABORATORY"},
+				},
+
+				&cli.StringFlag{
 					Name:     "pacs",
 					Category: "DICOM",
 					Usage:    "PACS server",
@@ -140,7 +148,7 @@ If no arguments are provided, the server will use the environment variables:
 					return fmt.Errorf("missing port in HTTP address")
 				}
 
-				return nil
+				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "laboratory"}, ctx)
 			},
 			Action: func(ctx *cli.Context) error {
 				addr := ctx.Args().First()
@@ -165,6 +173,7 @@ If no arguments are provided, the server will use the environment variables:
 					ctx.String("aet"),
 					ctx.String("aec"),
 					ctx.String("aem"),
+          ctx.String("laboratory"),
 				)
 				if err != nil {
 					return err
@@ -191,6 +200,14 @@ If no arguments are provided, the server will use the environment variables:
 					Value:       AWS_DYNAMODB_TABLE,
 					EnvVars:     []string{"DYNAMODB_TABLE"},
 				},
+				&cli.StringFlag{
+					Name:     "laboratory",
+					Category: "AWS",
+					Usage:    "LABORATORY",
+					Required: true,
+					EnvVars:  []string{"LABORATORY"},
+				},
+
 				&cli.StringFlag{
 					Name:     "pacs",
 					Category: "DICOM",
@@ -225,17 +242,25 @@ If no arguments are provided, the server will use the environment variables:
 					return fmt.Errorf("missing pk")
 				}
 
-				return nil
+				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "laboratory"}, ctx)
 			},
 			Action: func(ctx *cli.Context) error {
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
 				s3Client := s3.NewClient(awsCfg)
+        pk := ctx.Args().First()
+        if strings.Contains(pk, "PATIENT#") {
+          fmt.Println("prefix \"PATIENT#\" found in pk. It is not necessary to include it.")
+          pk = strings.Replace(pk, "PATIENT#", "", 1)
+        }
 
 				fmt.Println("Fetching patient info...")
-				pInfo, err := dbClient.GetPatientInfo(ctx.Context, ctx.Args().First())
+				pInfo, err := dbClient.GetPatientInfo(ctx.Context, pk)
 				if err != nil {
 					return err
 				}
+        if pInfo == nil {
+          return fmt.Errorf("patient \"%s\" not found", pk)
+        }
 
 				return check.CheckPatientDCM(
 					ctx.Context,
@@ -245,7 +270,8 @@ If no arguments are provided, the server will use the environment variables:
 					ctx.String("aet"),
 					ctx.String("aec"),
 					ctx.String("aem"),
-					pInfo,
+          ctx.String("laboratory"),
+					*pInfo,
 				)
 			},
 		},
@@ -262,6 +288,7 @@ func init() {
 	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
 		panic("error while loading .env file")
 	}
+
 	for _, env := range mandatoryEnvVars {
 		if os.Getenv(env) == "" {
 			panic(env + " is not set")
@@ -273,4 +300,14 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
+}
+
+func checkMandatoryStringFlags(flags []string, ctx *cli.Context) error {
+  for _, f := range flags {
+    if v := ctx.String(f); v == "" {
+      return fmt.Errorf("%s is mandatory", f)
+    }
+  }
+
+  return nil
 }

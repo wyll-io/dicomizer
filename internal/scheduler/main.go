@@ -16,7 +16,7 @@ func Create(
 	cexpr string,
 	storageClient storage.StorageAction,
 	dbClient dao.DBActions,
-	pacs, aet, aec, aem string,
+	pacs, aet, aec, aem, labo string,
 ) (gocron.Scheduler, error) {
 	location, err := time.LoadLocation("Europe/Paris")
 	if err != nil {
@@ -32,7 +32,7 @@ func Create(
 		gocron.CronJob(cexpr, false),
 		gocron.NewTask(
 			scheduleFunc,
-			ctx, storageClient, dbClient, pacs, aet, aec, aem,
+			ctx, storageClient, dbClient, pacs, aet, aec, aem, labo,
 		),
 	); err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func scheduleFunc(
 	ctx context.Context,
 	storageClient storage.StorageAction,
 	dbClient dao.DBActions,
-	pacs, aet, aec, aem string,
+	pacs, aet, aec, aem, labo string,
 ) {
 	fmt.Println("Fetching patients info...")
 	pInfos, err := dbClient.GetPatientsInfo(ctx)
@@ -57,7 +57,7 @@ func scheduleFunc(
 	// TODO: to be parallelized
 	for _, pInfo := range pInfos {
 		fmt.Printf("Processing patient: \"%s\" (%s)\n", pInfo.Fullname, pInfo.PK)
-		err := check.CheckPatientDCM(ctx, storageClient, dbClient, pacs, aet, aec, aem, pInfo)
+		err := check.CheckPatientDCM(ctx, storageClient, dbClient, pacs, aet, aec, aem, labo, pInfo)
 		if err != nil {
 			fmt.Println(err)
 			return

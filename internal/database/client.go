@@ -162,7 +162,7 @@ func (db DB) GetPatientsInfo(ctx context.Context) ([]dao.PatientInfo, error) {
 
 // GetPatientInfo searches for patient info by fullname
 // (case sensitive, dynamodb doesn't implement full-text search).
-func (db DB) GetPatientInfo(ctx context.Context, pk string) (dao.PatientInfo, error) {
+func (db DB) GetPatientInfo(ctx context.Context, pk string) (*dao.PatientInfo, error) {
 	filterExpr := expression.And(
 		expression.Name("pk").Equal(expression.Value(fmt.Sprintf("PATIENT#%s", pk))),
 		expression.Name("sk").Equal(expression.Value("INFO#0")),
@@ -179,7 +179,7 @@ func (db DB) GetPatientInfo(ctx context.Context, pk string) (dao.PatientInfo, er
 		WithProjection(projExpr).
 		Build()
 	if err != nil {
-		return dao.PatientInfo{}, err
+		return nil, err
 	}
 
 	res, err := db.Client.Scan(ctx, &dynamodb.ScanInput{
@@ -190,22 +190,22 @@ func (db DB) GetPatientInfo(ctx context.Context, pk string) (dao.PatientInfo, er
 		ProjectionExpression:      expr.Projection(),
 	})
 	if err != nil {
-		return dao.PatientInfo{}, err
+		return nil, err
 	}
 
 	if res.Count == 0 {
-		return dao.PatientInfo{}, nil
+		return nil, nil
 	}
 	if res.Count > 1 {
-		return dao.PatientInfo{}, fmt.Errorf("multiple patients found. This should not happen")
+		return nil, fmt.Errorf("multiple patients found. This should not happen")
 	}
 
 	pInfo := dao.PatientInfo{}
 	if err := attributevalue.UnmarshalMap(res.Items[0], &pInfo); err != nil {
-		return dao.PatientInfo{}, err
+		return nil, err
 	}
 
-	return pInfo, nil
+	return &pInfo, nil
 }
 
 func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.PatientInfo) error {

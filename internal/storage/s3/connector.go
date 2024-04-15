@@ -46,22 +46,17 @@ func (c *Client) UploadFile(ctx context.Context, fp string, opts storage.Options
 	return err
 }
 
-func (c *Client) Upload(ctx context.Context, r io.Reader, opts storage.Options) error {
-	h := sha256.New()
-	wr, err := io.Copy(h, r)
-	if err != nil {
-		return err
-	}
-
-	c.client.PutObject(ctx, &awsS3.PutObjectInput{
+// Upload sends "r" data to remote AWS "bucket" with key filename "key". "h" must be a base64 encoding sha256 hash
+func (c *Client) Upload(ctx context.Context, r io.Reader, length int, h string, opts storage.Options) error {
+	_, err := c.client.PutObject(ctx, &awsS3.PutObjectInput{
 		Bucket:            &opts.Bucket,
 		Key:               &opts.Key,
 		Body:              r,
-		ChecksumSHA256:    aws.String(string(h.Sum(nil))),
-		ChecksumAlgorithm: "SHA256",
-		ContentLength:     aws.Int64(wr),
+		// ChecksumSHA256:    &h,
+		// ChecksumAlgorithm: "SHA256",
 		ContentType:       aws.String("application/dicom"),
+		ContentLength:     aws.Int64(int64(length)),
 	})
 
-	return nil
+	return err
 }
