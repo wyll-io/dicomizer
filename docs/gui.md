@@ -18,10 +18,10 @@ echo ADMIN_PASSWORD=demo >> .env
 2. Run (customize the cron expression to your needs and change the IP address to which ip address the server should listen to and its port):
 
 ```bash
-dicomizer start 127.0.0.1:3000 "0 0 * * *"
+dicomizer start "0 0 * * *"
 ```
 
-3. Open your browser and go to: <http://127.0.0.1:3000>
+3. Open your browser and go to: <http://localhost>
 
 4. Login with the password you set in the `.env` file (`ADMIN_PASSWORD`).
 
