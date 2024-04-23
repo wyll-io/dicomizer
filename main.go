@@ -29,6 +29,36 @@ var (
 		"JWT_SECRET",
 		"ADMIN_PASSWORD",
 	}
+	dicomFlags = []cli.Flag{
+		&cli.StringFlag{
+			Name:     "pacs",
+			Category: "DICOM",
+			Usage:    "PACS server",
+			Required: true,
+			EnvVars:  []string{"PACS_SERVER"},
+		},
+		&cli.StringFlag{
+			Name:     "aet",
+			Category: "DICOM",
+			Usage:    "AET",
+			Required: true,
+			EnvVars:  []string{"AET"},
+		},
+		&cli.StringFlag{
+			Name:     "aec",
+			Category: "DICOM",
+			Usage:    "AEC",
+			Required: true,
+			EnvVars:  []string{"AEC"},
+		},
+		&cli.StringFlag{
+			Name:     "aem",
+			Category: "DICOM",
+			Usage:    "AEM",
+			Required: true,
+			EnvVars:  []string{"AEM"},
+		},
+	}
 )
 
 var app = &cli.App{
@@ -85,11 +115,9 @@ var app = &cli.App{
 			Name: "start",
 			Description: `Start the DICOMizer server. 
 If no arguments are provided, the server will use the environment variables:
-- HTTP_HOST
-- HTTP_PORT
 - CRONTAB`,
-			ArgsUsage: "[HOST:PORT CRONTAB]",
-			Flags: []cli.Flag{
+			ArgsUsage: "[CRONTAB]",
+			Flags: append([]cli.Flag{
 				&cli.StringFlag{
 					Name:        "dynamodb-table",
 					Category:    "AWS",
@@ -105,58 +133,23 @@ If no arguments are provided, the server will use the environment variables:
 					Required: true,
 					EnvVars:  []string{"LABORATORY"},
 				},
-
 				&cli.StringFlag{
-					Name:     "pacs",
-					Category: "DICOM",
-					Usage:    "PACS server",
-					Required: true,
-					EnvVars:  []string{"PACS_SERVER"},
+					Name:     "bind",
+					Category: "HTTP",
+					Usage:    "address:port",
+					EnvVars:  []string{"HTTP_BIND"},
+					Value:    "localhost:80",
 				},
-				&cli.StringFlag{
-					Name:     "aet",
-					Category: "DICOM",
-					Usage:    "AET",
-					Required: true,
-					EnvVars:  []string{"AET"},
-				},
-				&cli.StringFlag{
-					Name:     "aec",
-					Category: "DICOM",
-					Usage:    "AEC",
-					Required: true,
-					EnvVars:  []string{"AEC"},
-				},
-				&cli.StringFlag{
-					Name:     "aem",
-					Category: "DICOM",
-					Usage:    "AEM",
-					Required: true,
-					EnvVars:  []string{"AEM"},
-				},
-			},
+			}, dicomFlags...),
 			Before: func(ctx *cli.Context) error {
-				if ctx.Args().Len() < 2 {
-					if os.Getenv("HTTP_HOST") == "" &&
-						os.Getenv("HTTP_PORT") == "" &&
-						os.Getenv("CRONTAB") == "" {
-						return fmt.Errorf("missing HTTP host or HTTP port or crontab")
-					}
-				}
-
-				if strings.Split(ctx.Args().First(), ":")[1] == "" {
-					return fmt.Errorf("missing port in HTTP address")
+				if ctx.Args().Len() < 1 && os.Getenv("CRONTAB") == "" {
+					return fmt.Errorf("missing crontab")
 				}
 
 				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "laboratory"}, ctx)
 			},
 			Action: func(ctx *cli.Context) error {
-				addr := ctx.Args().First()
-				if addr == "" {
-					addr = os.Getenv("HTTP_HOST") + ":" + os.Getenv("HTTP_PORT")
-				}
-
-				crontab := ctx.Args().Get(1)
+				crontab := ctx.Args().First()
 				if crontab == "" {
 					crontab = os.Getenv("CRONTAB")
 				}
@@ -173,7 +166,7 @@ If no arguments are provided, the server will use the environment variables:
 					ctx.String("aet"),
 					ctx.String("aec"),
 					ctx.String("aem"),
-          ctx.String("laboratory"),
+					ctx.String("laboratory"),
 				)
 				if err != nil {
 					return err
@@ -183,15 +176,15 @@ If no arguments are provided, the server will use the environment variables:
 				fmt.Printf("starting scheduler with \"%s\"...\n", crontab)
 				s.Start()
 
-				fmt.Printf("web server started at http://%s\n", addr)
-				return http.ListenAndServe(addr, web.RegisterHandlers(awsCfg, dbClient))
+				fmt.Printf("web server started at http://%s\n", ctx.String("bind"))
+				return http.ListenAndServe(ctx.String("bind"), web.RegisterHandlers(awsCfg, dbClient))
 			},
 		},
 		{
 			Name:        "check-patient",
 			Description: "Check a patient for new DICOM files",
 			ArgsUsage:   "<pk>",
-			Flags: []cli.Flag{
+			Flags: append([]cli.Flag{
 				&cli.StringFlag{
 					Name:        "dynamodb-table",
 					Category:    "AWS",
@@ -207,36 +200,7 @@ If no arguments are provided, the server will use the environment variables:
 					Required: true,
 					EnvVars:  []string{"LABORATORY"},
 				},
-
-				&cli.StringFlag{
-					Name:     "pacs",
-					Category: "DICOM",
-					Usage:    "PACS server",
-					Required: true,
-					EnvVars:  []string{"PACS_SERVER"},
-				},
-				&cli.StringFlag{
-					Name:     "aet",
-					Category: "DICOM",
-					Usage:    "AET",
-					Required: true,
-					EnvVars:  []string{"AET"},
-				},
-				&cli.StringFlag{
-					Name:     "aec",
-					Category: "DICOM",
-					Usage:    "AEC",
-					Required: true,
-					EnvVars:  []string{"AEC"},
-				},
-				&cli.StringFlag{
-					Name:     "aem",
-					Category: "DICOM",
-					Usage:    "AEM",
-					Required: true,
-					EnvVars:  []string{"AEM"},
-				},
-			},
+			}, dicomFlags...),
 			Before: func(ctx *cli.Context) error {
 				if ctx.Args().First() == "" {
 					return fmt.Errorf("missing pk")
@@ -247,20 +211,20 @@ If no arguments are provided, the server will use the environment variables:
 			Action: func(ctx *cli.Context) error {
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
 				s3Client := s3.NewClient(awsCfg)
-        pk := ctx.Args().First()
-        if strings.Contains(pk, "PATIENT#") {
-          fmt.Println("prefix \"PATIENT#\" found in pk. It is not necessary to include it.")
-          pk = strings.Replace(pk, "PATIENT#", "", 1)
-        }
+				pk := ctx.Args().First()
+				if strings.Contains(pk, "PATIENT#") {
+					fmt.Println("prefix \"PATIENT#\" found in pk. It is not necessary to include it.")
+					pk = strings.Replace(pk, "PATIENT#", "", 1)
+				}
 
 				fmt.Println("Fetching patient info...")
 				pInfo, err := dbClient.GetPatientInfo(ctx.Context, pk)
 				if err != nil {
 					return err
 				}
-        if pInfo == nil {
-          return fmt.Errorf("patient \"%s\" not found", pk)
-        }
+				if pInfo == nil {
+					return fmt.Errorf("patient \"%s\" not found", pk)
+				}
 
 				return check.CheckPatientDCM(
 					ctx.Context,
@@ -270,7 +234,7 @@ If no arguments are provided, the server will use the environment variables:
 					ctx.String("aet"),
 					ctx.String("aec"),
 					ctx.String("aem"),
-          ctx.String("laboratory"),
+					ctx.String("laboratory"),
 					*pInfo,
 				)
 			},
@@ -286,12 +250,14 @@ If no arguments are provided, the server will use the environment variables:
 
 func init() {
 	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
-		panic("error while loading .env file")
+		fmt.Println("error while loading .env file")
+    os.Exit(1)
 	}
 
 	for _, env := range mandatoryEnvVars {
 		if os.Getenv(env) == "" {
-			panic(env + " is not set")
+			fmt.Printf("%s is not set", env)
+      os.Exit(1)
 		}
 	}
 }
@@ -303,11 +269,11 @@ func main() {
 }
 
 func checkMandatoryStringFlags(flags []string, ctx *cli.Context) error {
-  for _, f := range flags {
-    if v := ctx.String(f); v == "" {
-      return fmt.Errorf("%s is mandatory", f)
-    }
-  }
+	for _, f := range flags {
+		if v := ctx.String(f); v == "" {
+			return fmt.Errorf("%s is mandatory", f)
+		}
+	}
 
-  return nil
+	return nil
 }
