@@ -129,37 +129,35 @@ If no arguments are provided, the server will use the environment variables:
 				&cli.StringFlag{
 					Name:     "laboratory",
 					Category: "AWS",
-					Usage:    "LABORATORY",
+					Usage:    "Laboratory name used as root folder in AWS S3",
 					Required: true,
 					EnvVars:  []string{"LABORATORY"},
 				},
 				&cli.StringFlag{
 					Name:     "bind",
 					Category: "HTTP",
-					Usage:    "address:port",
+					Usage:    "Address and port to listen and bind",
 					EnvVars:  []string{"HTTP_BIND"},
 					Value:    "localhost:80",
 				},
+				&cli.StringFlag{
+					Name:     "crontab",
+					Category: "CRON",
+					Usage:    "crontab to execute pacs check. E.g: \"* * * * *\"",
+					EnvVars:  []string{"CRONTAB"},
+          Required: true,
+				},
 			}, dicomFlags...),
 			Before: func(ctx *cli.Context) error {
-				if ctx.Args().Len() < 1 && os.Getenv("CRONTAB") == "" {
-					return fmt.Errorf("missing crontab")
-				}
-
 				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "laboratory"}, ctx)
 			},
 			Action: func(ctx *cli.Context) error {
-				crontab := ctx.Args().First()
-				if crontab == "" {
-					crontab = os.Getenv("CRONTAB")
-				}
-
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
 				s3Client := s3.NewClient(awsCfg)
 
 				s, err := scheduler.Create(
 					ctx.Context,
-					crontab,
+					ctx.String("crontab"),
 					s3Client,
 					dbClient,
 					ctx.String("pacs"),
@@ -173,7 +171,7 @@ If no arguments are provided, the server will use the environment variables:
 				}
 				defer s.Shutdown()
 
-				fmt.Printf("starting scheduler with \"%s\"...\n", crontab)
+				fmt.Printf("starting scheduler with \"%s\"...\n", ctx.String("crontab"))
 				s.Start()
 
 				fmt.Printf("web server started at http://%s\n", ctx.String("bind"))
@@ -251,13 +249,13 @@ If no arguments are provided, the server will use the environment variables:
 func init() {
 	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
 		fmt.Println("error while loading .env file")
-    os.Exit(1)
+		os.Exit(1)
 	}
 
 	for _, env := range mandatoryEnvVars {
 		if os.Getenv(env) == "" {
 			fmt.Printf("%s is not set", env)
-      os.Exit(1)
+			os.Exit(1)
 		}
 	}
 }
