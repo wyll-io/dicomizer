@@ -10,7 +10,7 @@ Example:
 
 ```bash
 # Start the server on port 80 by default, listening on localhost by default and fetch data every day at midnight
-$ dicomizer start "0 0 * * *" --pacs "10.0.0.56:104" --aet "MY_AET" --aec "THEIR_AEC" --aem "MY_AEM"
+$ dicomizer start --crontab "0 0 * * *" --pacs "10.0.0.56:104" --aet "MY_AET" --aec "THEIR_AEC" --aem "MY_AEM"
 ```
 
 ### `anonymize`
