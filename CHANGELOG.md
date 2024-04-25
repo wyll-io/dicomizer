@@ -2,8 +2,25 @@
 ## [Unreleased]
 
 
+<a name="v1.0.3"></a>
+## [v1.0.3] - 2024-04-25
+### Chore
+- **docker:** use debian:bookworm-slim
+- **docs:** update cli docs for crontab flag
+- **docs:** update docs according to new arguments
+
+### Fix
+- **anonymize:** add missing tag
+- **cli:** set crontab as flag
+- **cli:** update args
+- **s3:** add subfolder for patient's dcm
+
+
 <a name="v1.0.2"></a>
 ## [v1.0.2] - 2024-04-15
+### Chore
+- **changelog:** release v1.0.2
+
 ### Fix
 - **S3:** fix data sent to S3
 
@@ -54,6 +71,7 @@
 - **gui:** add htmx 400 response add_patient
 
 
-[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.3...HEAD
+[v1.0.3]: https://github.com/wyll-io/dicomizer/compare/v1.0.2...v1.0.3
 [v1.0.2]: https://github.com/wyll-io/dicomizer/compare/v1.0.1...v1.0.2
 [v1.0.1]: https://github.com/wyll-io/dicomizer/compare/v1.0.0...v1.0.1
