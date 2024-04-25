@@ -10,11 +10,10 @@ type Table struct {
 	SK        string    `dynamodbav:"sk"`
 	Fullname  string    `dynamodbav:"fullname"`
 	Filters   string    `dynamodbav:"filters"`
-	Hash      string    `dynamodbav:"hash"`
 	Filename  string    `dynamodbav:"filename"`
 	CreatedAt time.Time `dynamodbav:"created_at"`
-	UpdatedAt time.Time `dynamodbav:"updated_at"`
-	DeletedAt time.Time `dynamodbav:"deleted_at"`
+	UpdatedAt *time.Time `dynamodbav:"updated_at"`
+	DeletedAt *time.Time `dynamodbav:"deleted_at"`
 }
 
 type PatientInfo struct {
@@ -23,17 +22,16 @@ type PatientInfo struct {
 	Fullname  string    `dynamodbav:"fullname"`
 	Filters   string    `dynamodbav:"filters"`
 	CreatedAt time.Time `dynamodbav:"created_at"`
-	UpdatedAt time.Time `dynamodbav:"updated_at"`
-	DeletedAt time.Time `dynamodbav:"deleted_at"`
+	UpdatedAt *time.Time `dynamodbav:"updated_at"`
+	DeletedAt *time.Time `dynamodbav:"deleted_at"`
 }
 
 type DCMInfo struct {
 	PK        string    `dynamodbav:"pk"`
 	SK        string    `dynamodbav:"sk"`
-	Hash      string    `dynamodbav:"hash"`
 	Filename  string    `dynamodbav:"filename"`
 	CreatedAt time.Time `dynamodbav:"created_at"`
-	DeletedAt time.Time `dynamodbav:"deleted_at"`
+	DeletedAt *time.Time `dynamodbav:"deleted_at"`
 }
 
 type DBActions interface {
@@ -47,6 +45,6 @@ type DBActions interface {
 
 	DeletePatient(ctx context.Context, pk string) error
 
-	CheckDCM(ctx context.Context, hash, filename string) (bool, error)
+	CheckDCM(ctx context.Context, filename string) (bool, error)
 	AddDCM(ctx context.Context, pk string, data *DCMInfo) error
 }

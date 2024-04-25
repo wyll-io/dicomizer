@@ -209,7 +209,8 @@ func (db DB) GetPatientInfo(ctx context.Context, pk string) (*dao.PatientInfo, e
 }
 
 func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.PatientInfo) error {
-	data.UpdatedAt = time.Now()
+  now := time.Now()
+	data.UpdatedAt = &now
 
 	updateEx := expression.Set(expression.Name("filters"), expression.Value(data.Filters)).
 		Set(expression.Name("fullname"), expression.Value(data.Fullname)).
@@ -250,12 +251,11 @@ func (db DB) DeletePatient(ctx context.Context, pk string) error {
 
 // CheckDCM searches for patient info by fullname
 // (case sensitive, dynamodb doesn't implement full-text search).
-func (db DB) CheckDCM(ctx context.Context, hash, filename string) (bool, error) {
+func (db DB) CheckDCM(ctx context.Context, filename string) (bool, error) {
 	filterExpr := expression.And(
 		expression.Name("pk").BeginsWith("PATIENT#"),
 		expression.Name("sk").BeginsWith("DCM#"),
 		expression.Name("filename").Equal(expression.Value(filename)),
-		expression.Name("hash").Equal(expression.Value(hash)),
 	)
 	projExpr := expression.NamesList(
 		expression.Name("pk"),

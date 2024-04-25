@@ -127,7 +127,7 @@ If no arguments are provided, the server will use the environment variables:
 					EnvVars:     []string{"DYNAMODB_TABLE"},
 				},
 				&cli.StringFlag{
-					Name:     "laboratory",
+					Name:     "center",
 					Category: "AWS",
 					Usage:    "Laboratory name used as root folder in AWS S3",
 					Required: true,
@@ -149,7 +149,7 @@ If no arguments are provided, the server will use the environment variables:
 				},
 			}, dicomFlags...),
 			Before: func(ctx *cli.Context) error {
-				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "laboratory"}, ctx)
+				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "center"}, ctx)
 			},
 			Action: func(ctx *cli.Context) error {
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
@@ -164,7 +164,7 @@ If no arguments are provided, the server will use the environment variables:
 					ctx.String("aet"),
 					ctx.String("aec"),
 					ctx.String("aem"),
-					ctx.String("laboratory"),
+					ctx.String("center"),
 				)
 				if err != nil {
 					return err
@@ -192,7 +192,7 @@ If no arguments are provided, the server will use the environment variables:
 					EnvVars:     []string{"DYNAMODB_TABLE"},
 				},
 				&cli.StringFlag{
-					Name:     "laboratory",
+					Name:     "center",
 					Category: "AWS",
 					Usage:    "LABORATORY",
 					Required: true,
@@ -204,7 +204,7 @@ If no arguments are provided, the server will use the environment variables:
 					return fmt.Errorf("missing pk")
 				}
 
-				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "laboratory"}, ctx)
+				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "center"}, ctx)
 			},
 			Action: func(ctx *cli.Context) error {
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
@@ -232,7 +232,7 @@ If no arguments are provided, the server will use the environment variables:
 					ctx.String("aet"),
 					ctx.String("aec"),
 					ctx.String("aem"),
-					ctx.String("laboratory"),
+					ctx.String("center"),
 					*pInfo,
 				)
 			},
