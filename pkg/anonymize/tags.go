@@ -48,6 +48,7 @@ var Z = []TBA{
 	{tag.StudyID, EmptyAction},                                     // Study ID
 	{tag.StudyTime, EmptyAction},                                   // Study Time
 	{tag.VerifyingObserverIdentificationCodeSequence, EmptyAction}, // Verifying Observer Identification Code Sequence
+	{tag.ReferringPhysicianName, EmptyAction},                      // Referring Physician's Name
 }
 
 // Tags to be deleted
@@ -75,7 +76,6 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0018, Element: 0xA003}, DeleteAction}, // Contribution Description
 	{tag.Tag{Group: 0x0010, Element: 0x2150}, DeleteAction}, // Country of Residence
 	{tag.Tag{Group: 0x0038, Element: 0x0300}, DeleteAction}, // Current Patient Location
-	// TODO: (0x5000, 0x0000, 0xFF00, 0x0000), // Curve Data
 	{tag.Tag{Group: 0x0008, Element: 0x0025}, DeleteAction}, // Curve Date
 	{tag.Tag{Group: 0x0008, Element: 0x0035}, DeleteAction}, // Curve Time
 	{tag.Tag{Group: 0x0040, Element: 0xA07C}, DeleteAction}, // Custodial Organization Sequence
@@ -131,8 +131,6 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0010, Element: 0x1000}, DeleteAction}, // Other Patient IDs
 	{tag.Tag{Group: 0x0010, Element: 0x1002}, DeleteAction}, // Other Patient IDs Sequence
 	{tag.Tag{Group: 0x0010, Element: 0x1001}, DeleteAction}, // Other Patient Names
-	// TODO: (0x6000, 0x4000, 0xFF00, 0xFFFF), // Overlay Comments
-	// TODO: (0x6000, 0x3000, 0xFF00, 0xFFFF), // Overlay Data
 	{tag.Tag{Group: 0x0008, Element: 0x0024}, DeleteAction}, // Overlay Date
 	{tag.Tag{Group: 0x0008, Element: 0x0034}, DeleteAction}, // Overlay Time
 	{tag.Tag{Group: 0x0040, Element: 0xA07A}, DeleteAction}, // Participant Sequence
