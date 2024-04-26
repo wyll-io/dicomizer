@@ -117,26 +117,27 @@ func anonymizeDataset(fp string) (dicom.Dataset, string, string, error) {
 		return dicom.Dataset{}, "", "", err
 	}
 
-  examType, err := dataset.FindElementByTag(tag.Tag{
+  etTag, err := dataset.FindElementByTag(tag.Tag{
    Group: 0x0008,
    Element: 0x0060,
   })
   if err != nil {
     return dicom.Dataset{}, "", "", err
   }
+  examType := etTag.Value.String()
 
-  studyDate, err := dataset.FindElementByTag(tag.Tag{
+  sdTag, err := dataset.FindElementByTag(tag.Tag{
     Group: 0x0008,
     Element: 0x0020,
   })
   if err != nil {
     return dicom.Dataset{}, "", "", err
   }
-
+  studyDate := sdTag.Value.String()
 
 	if err := anonymize.AnonymizeDataset(&dataset); err != nil {
 		return dicom.Dataset{}, "", "", err
 	}
 
-	return dataset, studyDate.Value.String(), examType.Value.String(), nil
+	return dataset, studyDate, examType, nil
 }

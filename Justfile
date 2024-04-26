@@ -1,7 +1,7 @@
 BINARY_NAME := "dicomizer"
 DOCKER_IMAGE_NAME := "ghcr.io/wyll-io/dicomizer"
 
-latest-tag := `git describe --tags --abbrev=0 | cut -c 2-`
+latest-tag := `git describe --tags --abbrev=0 | cut -c 1-`
 
 alias bb := build-binary
 build-binary: build-css

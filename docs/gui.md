@@ -8,12 +8,7 @@ A web server is shipped with the `Dicomizer` package. It is used to manage patie
 
 ## How to use it
 
-1. Setup required secrets (change secret to something more secure when in production):
-
-```bash
-echo JWT_SECRET=demo > .env
-echo ADMIN_PASSWORD=demo >> .env
-```
+1. Setup the CLI [(docs)](./cli.md)
 
 2. Run (customize the cron expression to your needs and change the IP address to which ip address the server should listen to and its port):
 
