@@ -2,8 +2,18 @@
 ## [Unreleased]
 
 
+<a name="v1.0.5"></a>
+## [v1.0.5] - 2024-04-26
+### Chore
+- **docs:** add link to AWS CLI documentation
+- **docs:** add cli & aws docs
+
+
 <a name="v1.0.4"></a>
 ## [v1.0.4] - 2024-04-26
+### Chore
+- **changelog:** release v1.0.4
+
 ### Fix
 - **s3:** fix examen date in folder name
 
@@ -78,7 +88,8 @@
 - **gui:** add htmx 400 response add_patient
 
 
-[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.5...HEAD
+[v1.0.5]: https://github.com/wyll-io/dicomizer/compare/v1.0.4...v1.0.5
 [v1.0.4]: https://github.com/wyll-io/dicomizer/compare/v1.0.3...v1.0.4
 [v1.0.3]: https://github.com/wyll-io/dicomizer/compare/v1.0.2...v1.0.3
 [v1.0.2]: https://github.com/wyll-io/dicomizer/compare/v1.0.1...v1.0.2
