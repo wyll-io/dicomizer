@@ -2,9 +2,16 @@
 ## [Unreleased]
 
 
+<a name="v1.0.4"></a>
+## [v1.0.4] - 2024-04-26
+### Fix
+- **s3:** fix examen date in folder name
+
+
 <a name="v1.0.3"></a>
 ## [v1.0.3] - 2024-04-25
 ### Chore
+- **changelog:** release v1.0.3
 - **docker:** use debian:bookworm-slim
 - **docs:** update cli docs for crontab flag
 - **docs:** update docs according to new arguments
@@ -71,7 +78,8 @@
 - **gui:** add htmx 400 response add_patient
 
 
-[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.4...HEAD
+[v1.0.4]: https://github.com/wyll-io/dicomizer/compare/v1.0.3...v1.0.4
 [v1.0.3]: https://github.com/wyll-io/dicomizer/compare/v1.0.2...v1.0.3
 [v1.0.2]: https://github.com/wyll-io/dicomizer/compare/v1.0.1...v1.0.2
 [v1.0.1]: https://github.com/wyll-io/dicomizer/compare/v1.0.0...v1.0.1

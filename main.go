@@ -63,7 +63,7 @@ var (
 
 var app = &cli.App{
 	Name:    "dicomizer",
-	Version: "vv1.0.3",
+	Version: "vvv1.0.4",
 	Before: func(ctx *cli.Context) error {
 		if ctx.Bool("help") {
 			return nil
