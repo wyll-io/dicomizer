@@ -2,9 +2,22 @@
 ## [Unreleased]
 
 
+<a name="v1.0.6"></a>
+## [v1.0.6] - 2024-05-13
+### Chore
+- **lint:** format
+
+### Feat
+- **aws:** add user delete in cascade
+
+### Pull Requests
+- Merge pull request [#1](https://github.com/wyll-io/dicomizer/issues/1) from wyll-io/feat/delete-user-cascade
+
+
 <a name="v1.0.5"></a>
 ## [v1.0.5] - 2024-04-26
 ### Chore
+- **changelog:** release v1.0.5
 - **docs:** add link to AWS CLI documentation
 - **docs:** add cli & aws docs
 
@@ -88,7 +101,8 @@
 - **gui:** add htmx 400 response add_patient
 
 
-[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/wyll-io/dicomizer/compare/v1.0.6...HEAD
+[v1.0.6]: https://github.com/wyll-io/dicomizer/compare/v1.0.5...v1.0.6
 [v1.0.5]: https://github.com/wyll-io/dicomizer/compare/v1.0.4...v1.0.5
 [v1.0.4]: https://github.com/wyll-io/dicomizer/compare/v1.0.3...v1.0.4
 [v1.0.3]: https://github.com/wyll-io/dicomizer/compare/v1.0.2...v1.0.3
