@@ -26,7 +26,10 @@ func AnonymizeDataset(dataset *dicom.Dataset) error {
 			if err := EmptyElementValue(el); err != nil {
 				return err
 			}
-		case ReplaceAction, EmptyOrReplaceAction, DeleteOrReplaceAction, DeleteOrEmptyOrReplaceAction:
+		case ReplaceAction,
+			EmptyOrReplaceAction,
+			DeleteOrReplaceAction,
+			DeleteOrEmptyOrReplaceAction:
 			// fmt.Printf("replacing tag %s\n", t.tag.String())
 			if err := ReplaceElementValue(el); err != nil {
 				return err

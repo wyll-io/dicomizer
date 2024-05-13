@@ -38,7 +38,7 @@ func CheckPatientDCM(
 	for _, f := range files {
 		if f.IsDir() {
 			fmt.Println("unexpected directory")
-      os.Exit(1)
+			os.Exit(1)
 		}
 
 		if strings.Contains(f.Name(), "rsp") {
@@ -57,7 +57,14 @@ func CheckPatientDCM(
 		}
 
 		err = func() error {
-			fileKey := fmt.Sprintf("%s/%s/%s-%s/%s", center, strings.Replace(pInfo.PK, "PATIENT#", "", 1), examDate, examType, f.Name())
+			fileKey := fmt.Sprintf(
+				"%s/%s/%s-%s/%s",
+				center,
+				strings.Replace(pInfo.PK, "PATIENT#", "", 1),
+				examDate,
+				examType,
+				f.Name(),
+			)
 			found, err := dbClient.CheckDCM(ctx, fileKey)
 			if err != nil {
 				return fmt.Errorf("failed to check if DCM exists in DB: %v", err)
@@ -117,23 +124,23 @@ func anonymizeDataset(fp string) (dicom.Dataset, string, string, error) {
 		return dicom.Dataset{}, "", "", err
 	}
 
-  etTag, err := dataset.FindElementByTag(tag.Tag{
-   Group: 0x0008,
-   Element: 0x0060,
-  })
-  if err != nil {
-    return dicom.Dataset{}, "", "", err
-  }
-  examType := etTag.Value.String()
+	etTag, err := dataset.FindElementByTag(tag.Tag{
+		Group:   0x0008,
+		Element: 0x0060,
+	})
+	if err != nil {
+		return dicom.Dataset{}, "", "", err
+	}
+	examType := etTag.Value.String()
 
-  sdTag, err := dataset.FindElementByTag(tag.Tag{
-    Group: 0x0008,
-    Element: 0x0020,
-  })
-  if err != nil {
-    return dicom.Dataset{}, "", "", err
-  }
-  studyDate := sdTag.Value.String()
+	sdTag, err := dataset.FindElementByTag(tag.Tag{
+		Group:   0x0008,
+		Element: 0x0020,
+	})
+	if err != nil {
+		return dicom.Dataset{}, "", "", err
+	}
+	studyDate := sdTag.Value.String()
 
 	if err := anonymize.AnonymizeDataset(&dataset); err != nil {
 		return dicom.Dataset{}, "", "", err

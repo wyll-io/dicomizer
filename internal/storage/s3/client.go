@@ -8,12 +8,12 @@ import (
 
 type Client struct {
 	client *awsS3.Client
-  bucket string
+	bucket string
 }
 
 func NewClient(cfg aws.Config, bucket string) storage.StorageAction {
 	return &Client{
 		client: awsS3.NewFromConfig(cfg),
-    bucket: bucket,
+		bucket: bucket,
 	}
 }

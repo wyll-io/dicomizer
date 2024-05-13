@@ -85,16 +85,16 @@ func ReplaceElementValue(el *dicom.Element) error {
 	case "SQ":
 		if el.Value.ValueType() == dicom.Sequences {
 			seqs := el.Value.GetValue().([]*dicom.SequenceItemValue)
-      newValue := make([][]*dicom.Element, 0, len(seqs))
-      for _, siv := range seqs {
-        subEls := siv.GetValue().([]*dicom.Element)
-        for _, subEl := range subEls {
+			newValue := make([][]*dicom.Element, 0, len(seqs))
+			for _, siv := range seqs {
+				subEls := siv.GetValue().([]*dicom.Element)
+				for _, subEl := range subEls {
 					if err := ReplaceElementValue(subEl); err != nil {
 						return err
-          }
-        }
-        newValue = append(newValue, subEls)
-      }
+					}
+				}
+				newValue = append(newValue, subEls)
+			}
 
 			v, err = dicom.NewValue(newValue)
 			if err != nil {
@@ -157,16 +157,16 @@ func EmptyElementValue(el *dicom.Element) error {
 	case "SQ":
 		if el.Value.ValueType() == dicom.Sequences {
 			seqs := el.Value.GetValue().([]*dicom.SequenceItemValue)
-      newValue := make([][]*dicom.Element, 0, len(seqs))
-      for _, siv := range seqs {
-        subEls := siv.GetValue().([]*dicom.Element)
-        for _, subEl := range subEls {
+			newValue := make([][]*dicom.Element, 0, len(seqs))
+			for _, siv := range seqs {
+				subEls := siv.GetValue().([]*dicom.Element)
+				for _, subEl := range subEls {
 					if err := EmptyElementValue(subEl); err != nil {
 						return err
-          }
-        }
-        newValue = append(newValue, subEls)
-      }
+					}
+				}
+				newValue = append(newValue, subEls)
+			}
 
 			v, err = dicom.NewValue(newValue)
 			if err != nil {

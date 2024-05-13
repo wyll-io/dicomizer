@@ -13,7 +13,7 @@ func handlePatientRowEdit(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.ExecuteTemplate(w, "partials/patient_row_edit", map[string]string{
 		"Fullname": r.URL.Query().Get("fullname"),
 		"Filters":  r.URL.Query().Get("filters"),
-		"PK":     r.URL.Query().Get("pk"),
+		"PK":       r.URL.Query().Get("pk"),
 	}); err != nil {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
@@ -25,7 +25,7 @@ func handlePatientRow(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.ExecuteTemplate(w, "partials/patient_row", map[string]string{
 		"Fullname": r.URL.Query().Get("fullname"),
 		"Filters":  r.URL.Query().Get("filters"),
-		"PK":     r.URL.Query().Get("pk"),
+		"PK":       r.URL.Query().Get("pk"),
 	}); err != nil {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
