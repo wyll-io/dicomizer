@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"os"
 
@@ -67,4 +68,30 @@ func (c *Client) Upload(ctx context.Context, r io.Reader, length int, opts stora
 	})
 
 	return err
+}
+
+func (c *Client) DeletePatientFiles(ctx context.Context, pk_key string) error {
+	fmt.Printf("Deleting patient files in %s...\n", pk_key)
+	rsp, err := c.client.ListObjectsV2(ctx, &awsS3.ListObjectsV2Input{
+		Bucket: &c.bucket,
+		Prefix: &pk_key,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, obj := range rsp.Contents {
+		_, err := c.client.DeleteObject(ctx, &awsS3.DeleteObjectInput{
+			Bucket: &c.bucket,
+			Key:    obj.Key,
+		})
+		if err != nil {
+			return err
+		}
+
+	}
+
+	fmt.Println("Patient's files deleted successfully")
+
+	return nil
 }

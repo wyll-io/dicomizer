@@ -22,4 +22,5 @@ type Options struct {
 type StorageAction interface {
 	Upload(ctx context.Context, r io.Reader, length int, opts Options) error
 	UploadFile(ctx context.Context, fp string, opts Options) error
+	DeletePatientFiles(ctx context.Context, pk_key string) error
 }

@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	dao "github.com/wyll-io/dicomizer/internal/DAO"
+	awsStorage "github.com/wyll-io/dicomizer/internal/storage"
 	"github.com/wyll-io/dicomizer/internal/web/authentication"
 	webContext "github.com/wyll-io/dicomizer/internal/web/context"
 	webError "github.com/wyll-io/dicomizer/internal/web/error"
@@ -63,8 +63,12 @@ func init() {
 	)
 }
 
-func RegisterHandlers(awsCfg aws.Config, db dao.DBActions) http.Handler {
-	internalCtx = webContext.InternalValues{DB: db}
+func RegisterHandlers(
+	s3Client awsStorage.StorageAction,
+	db dao.DBActions,
+	center string,
+) http.Handler {
+	internalCtx = webContext.InternalValues{DB: db, S3: s3Client, Center: center}
 
 	r := mux.NewRouter()
 
@@ -88,7 +92,10 @@ func dispatchHandlers(h http.Handler) http.Handler {
 	h = func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			internalCtx := context.WithValue(r.Context(), webContext.Internal, internalCtx)
-			next.ServeHTTP(w, r.WithContext(context.WithValue(internalCtx, webContext.Templates, templates)))
+			next.ServeHTTP(
+				w,
+				r.WithContext(context.WithValue(internalCtx, webContext.Templates, templates)),
+			)
 		})
 	}(h)
 	h = handlers.LoggingHandler(os.Stdout, h)

@@ -35,20 +35,29 @@ var D = []TBA{
 
 // Tags's value to be emptied
 var Z = []TBA{
-	{tag.AccessionNumber, EmptyAction},                             // Accession Number
-	{tag.ContentCreatorName, EmptyAction},                          // Content Creator's Name
-	{tag.FillerOrderNumberImagingServiceRequest, EmptyAction},      // Filler Order Number / Imaging Service Request
-	{tag.PatientID, EmptyAction},                                   // Patient ID
-	{tag.PatientBirthDate, EmptyAction},                            // Patient's Birth Date
-	{tag.PatientName, EmptyAction},                                 // Patient's Name
-	{tag.PatientSex, EmptyAction},                                  // Patient's Sex
-	{tag.PlacerOrderNumberImagingServiceRequest, EmptyAction},      // Placer Order Number / Imaging Service Request
-	{tag.ReferringPhysicianAddress, EmptyAction},                   // Referring Physician's Name
-	{tag.StudyDate, EmptyAction},                                   // Study Date
-	{tag.StudyID, EmptyAction},                                     // Study ID
-	{tag.StudyTime, EmptyAction},                                   // Study Time
-	{tag.VerifyingObserverIdentificationCodeSequence, EmptyAction}, // Verifying Observer Identification Code Sequence
-	{tag.ReferringPhysicianName, EmptyAction},                      // Referring Physician's Name
+	{tag.AccessionNumber, EmptyAction},    // Accession Number
+	{tag.ContentCreatorName, EmptyAction}, // Content Creator's Name
+	{
+		tag.FillerOrderNumberImagingServiceRequest,
+		EmptyAction,
+	}, // Filler Order Number / Imaging Service Request
+	{tag.PatientID, EmptyAction},        // Patient ID
+	{tag.PatientBirthDate, EmptyAction}, // Patient's Birth Date
+	{tag.PatientName, EmptyAction},      // Patient's Name
+	{tag.PatientSex, EmptyAction},       // Patient's Sex
+	{
+		tag.PlacerOrderNumberImagingServiceRequest,
+		EmptyAction,
+	}, // Placer Order Number / Imaging Service Request
+	{tag.ReferringPhysicianAddress, EmptyAction}, // Referring Physician's Name
+	{tag.StudyDate, EmptyAction},                 // Study Date
+	{tag.StudyID, EmptyAction},                   // Study ID
+	{tag.StudyTime, EmptyAction},                 // Study Time
+	{
+		tag.VerifyingObserverIdentificationCodeSequence,
+		EmptyAction,
+	}, // Verifying Observer Identification Code Sequence
+	{tag.ReferringPhysicianName, EmptyAction}, // Referring Physician's Name
 }
 
 // Tags to be deleted
@@ -69,9 +78,18 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0040, Element: 0xA078}, DeleteAction}, // Author Observer Sequence
 	{tag.Tag{Group: 0x0010, Element: 0x1081}, DeleteAction}, // Branch of Service
 	{tag.Tag{Group: 0x0018, Element: 0x1007}, DeleteAction}, // Cassette ID
-	{tag.Tag{Group: 0x0040, Element: 0x0280}, DeleteAction}, // Comments on the Performed Procedure Step
-	{tag.Tag{Group: 0x0040, Element: 0x3001}, DeleteAction}, // Confidentiality Constraint on Patient Data Description
-	{tag.Tag{Group: 0x0070, Element: 0x0086}, DeleteAction}, // Content Creator's Identification Code Sequence
+	{
+		tag.Tag{Group: 0x0040, Element: 0x0280},
+		DeleteAction,
+	}, // Comments on the Performed Procedure Step
+	{
+		tag.Tag{Group: 0x0040, Element: 0x3001},
+		DeleteAction,
+	}, // Confidentiality Constraint on Patient Data Description
+	{
+		tag.Tag{Group: 0x0070, Element: 0x0086},
+		DeleteAction,
+	}, // Content Creator's Identification Code Sequence
 	{tag.Tag{Group: 0x0040, Element: 0xA730}, DeleteAction}, // Content Sequence
 	{tag.Tag{Group: 0x0018, Element: 0xA003}, DeleteAction}, // Contribution Description
 	{tag.Tag{Group: 0x0010, Element: 0x2150}, DeleteAction}, // Country of Residence
@@ -101,7 +119,10 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0008, Element: 0x0081}, DeleteAction}, // Institution Address
 	{tag.Tag{Group: 0x0008, Element: 0x1040}, DeleteAction}, // Institutional Department Name
 	{tag.Tag{Group: 0x0010, Element: 0x1050}, DeleteAction}, // Insurance Plan Identification
-	{tag.Tag{Group: 0x0040, Element: 0x1011}, DeleteAction}, // Intended Recipients of Results Identification Sequence
+	{
+		tag.Tag{Group: 0x0040, Element: 0x1011},
+		DeleteAction,
+	}, // Intended Recipients of Results Identification Sequence
 	{tag.Tag{Group: 0x4008, Element: 0x0111}, DeleteAction}, // Interpretation Approver Sequence
 	{tag.Tag{Group: 0x4008, Element: 0x010C}, DeleteAction}, // Interpretation Author
 	{tag.Tag{Group: 0x4008, Element: 0x0115}, DeleteAction}, // Interpretation Diagnosis Description
@@ -122,7 +143,10 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0020, Element: 0x3401}, DeleteAction}, // Modifying Device ID
 	{tag.Tag{Group: 0x0020, Element: 0x3404}, DeleteAction}, // Modifying Device Manufacturer
 	{tag.Tag{Group: 0x0008, Element: 0x1060}, DeleteAction}, // Name of Physician study
-	{tag.Tag{Group: 0x0040, Element: 0x1010}, DeleteAction}, // Names of Intended Recipient of Results
+	{
+		tag.Tag{Group: 0x0040, Element: 0x1010},
+		DeleteAction,
+	}, // Names of Intended Recipient of Results
 	{tag.Tag{Group: 0x0010, Element: 0x2180}, DeleteAction}, // Occupation
 	{tag.Tag{Group: 0x0400, Element: 0x0561}, DeleteAction}, // Original Attributes Sequence
 	{tag.Tag{Group: 0x0040, Element: 0x2010}, DeleteAction}, // Order Callback Phone Number
@@ -142,10 +166,19 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0010, Element: 0x1005}, DeleteAction}, // Patient's Birth Name
 	{tag.Tag{Group: 0x0010, Element: 0x0032}, DeleteAction}, // Patient's Birth Time
 	{tag.Tag{Group: 0x0038, Element: 0x0400}, DeleteAction}, // Patient's Institution Residence
-	{tag.Tag{Group: 0x0010, Element: 0x0050}, DeleteAction}, // Patient's Insurance Plan Code Sequence
+	{
+		tag.Tag{Group: 0x0010, Element: 0x0050},
+		DeleteAction,
+	}, // Patient's Insurance Plan Code Sequence
 	{tag.Tag{Group: 0x0010, Element: 0x1060}, DeleteAction}, // Patient's Mother's Birth Name
-	{tag.Tag{Group: 0x0010, Element: 0x0101}, DeleteAction}, // Patient's Primary Language Code Sequence
-	{tag.Tag{Group: 0x0010, Element: 0x0102}, DeleteAction}, // Patient's Primary Language Modifier Code Sequence
+	{
+		tag.Tag{Group: 0x0010, Element: 0x0101},
+		DeleteAction,
+	}, // Patient's Primary Language Code Sequence
+	{
+		tag.Tag{Group: 0x0010, Element: 0x0102},
+		DeleteAction,
+	}, // Patient's Primary Language Modifier Code Sequence
 	{tag.Tag{Group: 0x0010, Element: 0x21F0}, DeleteAction}, // Patient's Religious Preference
 	{tag.Tag{Group: 0x0010, Element: 0x1020}, DeleteAction}, // Patient's Size
 	{tag.Tag{Group: 0x0010, Element: 0x2154}, DeleteAction}, // Patient's Telephone Numbers
@@ -158,29 +191,53 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0040, Element: 0x0244}, DeleteAction}, // Performed Procedure Step Start Date
 	{tag.Tag{Group: 0x0040, Element: 0x0245}, DeleteAction}, // Performed Procedure Step Start Time
 	{tag.Tag{Group: 0x0040, Element: 0x0241}, DeleteAction}, // Performed Station AE Title
-	{tag.Tag{Group: 0x0040, Element: 0x4030}, DeleteAction}, // Performed Station Geographic Location Code Sequence
+	{
+		tag.Tag{Group: 0x0040, Element: 0x4030},
+		DeleteAction,
+	}, // Performed Station Geographic Location Code Sequence
 	{tag.Tag{Group: 0x0040, Element: 0x0242}, DeleteAction}, // Performed Station Name
 	{tag.Tag{Group: 0x0040, Element: 0x4028}, DeleteAction}, // Performed Station Name Code Sequence
-	{tag.Tag{Group: 0x0008, Element: 0x1052}, DeleteAction}, // Performing Physician Identification Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x1052},
+		DeleteAction,
+	}, // Performing Physician Identification Sequence
 	{tag.Tag{Group: 0x0008, Element: 0x1050}, DeleteAction}, // Performing Physicians' Name
 	{tag.Tag{Group: 0x0040, Element: 0x1102}, DeleteAction}, // Person Address
 	{tag.Tag{Group: 0x0040, Element: 0x1103}, DeleteAction}, // Person Telephone Numbers
 	{tag.Tag{Group: 0x4008, Element: 0x0114}, DeleteAction}, // Physician Approving Interpretation
-	{tag.Tag{Group: 0x0008, Element: 0x1062}, DeleteAction}, // Physician study Identification Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x1062},
+		DeleteAction,
+	}, // Physician study Identification Sequence
 	{tag.Tag{Group: 0x0008, Element: 0x1048}, DeleteAction}, // Physician record
-	{tag.Tag{Group: 0x0008, Element: 0x1049}, DeleteAction}, // Physician record Identification Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x1049},
+		DeleteAction,
+	}, // Physician record Identification Sequence
 	{tag.Tag{Group: 0x0018, Element: 0x1004}, DeleteAction}, // Plate ID
 	{tag.Tag{Group: 0x0040, Element: 0x0012}, DeleteAction}, // Pre-Medication
 	{tag.Tag{Group: 0x0010, Element: 0x21C0}, DeleteAction}, // Pregnancy Status
-	{tag.Tag{Group: 0x0040, Element: 0x2001}, DeleteAction}, // Reason for the Imaging Service Request
+	{
+		tag.Tag{Group: 0x0040, Element: 0x2001},
+		DeleteAction,
+	}, // Reason for the Imaging Service Request
 	{tag.Tag{Group: 0x0032, Element: 0x1030}, DeleteAction}, // Reason for Study
-	{tag.Tag{Group: 0x0400, Element: 0x0402}, DeleteAction}, // Referenced Digital Signature Sequence
+	{
+		tag.Tag{Group: 0x0400, Element: 0x0402},
+		DeleteAction,
+	}, // Referenced Digital Signature Sequence
 	{tag.Tag{Group: 0x0038, Element: 0x0004}, DeleteAction}, // Referenced Patient Alias Sequence
 	{tag.Tag{Group: 0x0008, Element: 0x1120}, DeleteAction}, // Referenced Patient Sequence
 	{tag.Tag{Group: 0x0400, Element: 0x0403}, DeleteAction}, // Referenced SOP Instance MAC Sequence
 	{tag.Tag{Group: 0x0008, Element: 0x0092}, DeleteAction}, // Referring Physician's Address
-	{tag.Tag{Group: 0x0008, Element: 0x0096}, DeleteAction}, // Referring Physician's Identification Sequence
-	{tag.Tag{Group: 0x0008, Element: 0x0094}, DeleteAction}, // Referring Physician's Telephone Numbers
+	{
+		tag.Tag{Group: 0x0008, Element: 0x0096},
+		DeleteAction,
+	}, // Referring Physician's Identification Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x0094},
+		DeleteAction,
+	}, // Referring Physician's Telephone Numbers
 	{tag.Tag{Group: 0x0010, Element: 0x2152}, DeleteAction}, // Region of Residence
 	{tag.Tag{Group: 0x0040, Element: 0x0275}, DeleteAction}, // Request Attributes Sequence
 	{tag.Tag{Group: 0x0032, Element: 0x1070}, DeleteAction}, // Requested Contrast Agent
@@ -195,8 +252,14 @@ var X = []TBA{
 	{tag.Tag{Group: 0x4008, Element: 0x0118}, DeleteAction}, // Results Distribution List Sequence
 	{tag.Tag{Group: 0x4008, Element: 0x0042}, DeleteAction}, // Results ID Issuer
 	{tag.Tag{Group: 0x0040, Element: 0x4034}, DeleteAction}, // Scheduled Human Performers Sequence
-	{tag.Tag{Group: 0x0038, Element: 0x001E}, DeleteAction}, // Scheduled Patient Institution Residence
-	{tag.Tag{Group: 0x0040, Element: 0x000B}, DeleteAction}, // Scheduled Performing Physician Identification Sequence
+	{
+		tag.Tag{Group: 0x0038, Element: 0x001E},
+		DeleteAction,
+	}, // Scheduled Patient Institution Residence
+	{
+		tag.Tag{Group: 0x0040, Element: 0x000B},
+		DeleteAction,
+	}, // Scheduled Performing Physician Identification Sequence
 	{tag.Tag{Group: 0x0040, Element: 0x0006}, DeleteAction}, // Scheduled Performing Physician Name
 	{tag.Tag{Group: 0x0040, Element: 0x0004}, DeleteAction}, // Scheduled Procedure Step End Date
 	{tag.Tag{Group: 0x0040, Element: 0x0005}, DeleteAction}, // Scheduled Procedure Step End Time
@@ -205,7 +268,10 @@ var X = []TBA{
 	{tag.Tag{Group: 0x0040, Element: 0x0002}, DeleteAction}, // Scheduled Procedure Step Start Date
 	{tag.Tag{Group: 0x0040, Element: 0x0003}, DeleteAction}, // Scheduled Procedure Step Start Time
 	{tag.Tag{Group: 0x0040, Element: 0x0001}, DeleteAction}, // Scheduled Station AE Title
-	{tag.Tag{Group: 0x0040, Element: 0x4027}, DeleteAction}, // Scheduled Station Geographic Location Code Sequence
+	{
+		tag.Tag{Group: 0x0040, Element: 0x4027},
+		DeleteAction,
+	}, // Scheduled Station Geographic Location Code Sequence
 	{tag.Tag{Group: 0x0040, Element: 0x0010}, DeleteAction}, // Scheduled Station Name
 	{tag.Tag{Group: 0x0040, Element: 0x4025}, DeleteAction}, // Scheduled Station Name Code Sequence
 	{tag.Tag{Group: 0x0032, Element: 0x1020}, DeleteAction}, // Scheduled Study Location
@@ -232,7 +298,10 @@ var X = []TBA{
 // Tags's value to be replaced with fake UID
 var U = []TBA{
 	{tag.Tag{Group: 0x0020, Element: 0x9161}, ReplaceUIDAction}, // Concatenation UID
-	{tag.Tag{Group: 0x0008, Element: 0x010D}, ReplaceUIDAction}, // Context Group Extension Creator UID
+	{
+		tag.Tag{Group: 0x0008, Element: 0x010D},
+		ReplaceUIDAction,
+	}, // Context Group Extension Creator UID
 	{tag.Tag{Group: 0x0008, Element: 0x9123}, ReplaceUIDAction}, // Creator Version UID
 	{tag.Tag{Group: 0x0018, Element: 0x1002}, ReplaceUIDAction}, // Device UID
 	{tag.Tag{Group: 0x0020, Element: 0x9164}, ReplaceUIDAction}, // Dimension Organization UID
@@ -242,22 +311,40 @@ var U = []TBA{
 	{tag.Tag{Group: 0x0020, Element: 0x0052}, ReplaceUIDAction}, // Frame of Reference UID
 	{tag.Tag{Group: 0x0008, Element: 0x0014}, ReplaceUIDAction}, // Instance Creator UID
 	{tag.Tag{Group: 0x0008, Element: 0x3010}, ReplaceUIDAction}, // Irradiation Event UID
-	{tag.Tag{Group: 0x0028, Element: 0x1214}, ReplaceUIDAction}, // Large Palette Color Lookup Table UID
+	{
+		tag.Tag{Group: 0x0028, Element: 0x1214},
+		ReplaceUIDAction,
+	}, // Large Palette Color Lookup Table UID
 	{tag.Tag{Group: 0x0002, Element: 0x0003}, ReplaceUIDAction}, // Media Storage SOP Instance UID
 	{tag.Tag{Group: 0x0028, Element: 0x1199}, ReplaceUIDAction}, // Palette Color Lookup Table UID
-	{tag.Tag{Group: 0x3006, Element: 0x0024}, ReplaceUIDAction}, // Referenced Frame of Reference UID
-	{tag.Tag{Group: 0x0040, Element: 0x4023}, ReplaceUIDAction}, // Referenced General Purpose Scheduled Procedure Step Transaction UID
+	{
+		tag.Tag{Group: 0x3006, Element: 0x0024},
+		ReplaceUIDAction,
+	}, // Referenced Frame of Reference UID
+	{
+		tag.Tag{Group: 0x0040, Element: 0x4023},
+		ReplaceUIDAction,
+	}, // Referenced General Purpose Scheduled Procedure Step Transaction UID
 	{tag.Tag{Group: 0x0008, Element: 0x1155}, ReplaceUIDAction}, // Referenced SOP Instance UID
-	{tag.Tag{Group: 0x0004, Element: 0x1511}, ReplaceUIDAction}, // Referenced SOP Instance UID in File
+	{
+		tag.Tag{Group: 0x0004, Element: 0x1511},
+		ReplaceUIDAction,
+	}, // Referenced SOP Instance UID in File
 	{tag.Tag{Group: 0x3006, Element: 0x00C2}, ReplaceUIDAction}, // Related Frame of Reference UID
 	{tag.Tag{Group: 0x0000, Element: 0x1001}, ReplaceUIDAction}, // Requested SOP Instance UID
 	{tag.Tag{Group: 0x0020, Element: 0x000E}, ReplaceUIDAction}, // Series Instance UID
 	{tag.Tag{Group: 0x0008, Element: 0x0018}, ReplaceUIDAction}, // SOP Instance UID
 	{tag.Tag{Group: 0x0088, Element: 0x0140}, ReplaceUIDAction}, // Storage Media File-set UID
 	{tag.Tag{Group: 0x0020, Element: 0x000D}, ReplaceUIDAction}, // Study Instance UID
-	{tag.Tag{Group: 0x0020, Element: 0x0200}, ReplaceUIDAction}, // Synchronization Frame of Reference UID
+	{
+		tag.Tag{Group: 0x0020, Element: 0x0200},
+		ReplaceUIDAction,
+	}, // Synchronization Frame of Reference UID
 	{tag.Tag{Group: 0x0040, Element: 0xDB0D}, ReplaceUIDAction}, // Template Extension Creator UID
-	{tag.Tag{Group: 0x0040, Element: 0xDB0C}, ReplaceUIDAction}, // Template Extension Organization UID
+	{
+		tag.Tag{Group: 0x0040, Element: 0xDB0C},
+		ReplaceUIDAction,
+	}, // Template Extension Organization UID
 	{tag.TransactionUID, ReplaceUIDAction},                      // Transaction UID
 	{tag.Tag{Group: 0x0040, Element: 0xA124}, ReplaceUIDAction}, // UID
 }
@@ -275,16 +362,25 @@ var XZ = []TBA{
 	{tag.Tag{Group: 0x0008, Element: 0x0032}, DeleteOrEmptyAction}, // Acquisition Time
 	{tag.Tag{Group: 0x0010, Element: 0x2203}, DeleteOrEmptyAction}, // Patient Sex Neutered
 	{tag.Tag{Group: 0x0008, Element: 0x1110}, DeleteOrEmptyAction}, // Referenced Study Sequence
-	{tag.Tag{Group: 0x0032, Element: 0x1060}, DeleteOrEmptyAction}, // Requested Procedure Description
+	{
+		tag.Tag{Group: 0x0032, Element: 0x1060},
+		DeleteOrEmptyAction,
+	}, // Requested Procedure Description
 	{tag.Tag{Group: 0x300E, Element: 0x0008}, DeleteOrEmptyAction}, // Reviewer Name
 }
 
 // Tags to be deleted or value emptied or replaced
 var XD = []TBA{
 	{tag.Tag{Group: 0x0008, Element: 0x002A}, DeleteOrReplaceAction}, // Acquisition DateTime
-	{tag.Tag{Group: 0x0018, Element: 0x1400}, DeleteOrReplaceAction}, // Acquisition Device Processing Description
+	{
+		tag.Tag{Group: 0x0018, Element: 0x1400},
+		DeleteOrReplaceAction,
+	}, // Acquisition Device Processing Description
 	{tag.Tag{Group: 0x0018, Element: 0x700A}, DeleteOrReplaceAction}, // Detector ID
-	{tag.Tag{Group: 0x0008, Element: 0x1072}, DeleteOrReplaceAction}, // Operators' Identification Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x1072},
+		DeleteOrReplaceAction,
+	}, // Operators' Identification Sequence
 	{tag.Tag{Group: 0x0018, Element: 0x1030}, DeleteOrReplaceAction}, // Protocol Name
 	{tag.Tag{Group: 0x0008, Element: 0x0021}, DeleteOrReplaceAction}, // Series Date
 	{tag.Tag{Group: 0x0008, Element: 0x0031}, DeleteOrReplaceAction}, // Series Time
@@ -293,18 +389,30 @@ var XD = []TBA{
 // Tags to be deleted or value emptied or replaced
 var XZD = []TBA{
 	{tag.Tag{Group: 0x0018, Element: 0x1000}, DeleteOrEmptyOrReplaceAction}, // Device Serial Number
-	{tag.Tag{Group: 0x0008, Element: 0x0082}, DeleteOrEmptyOrReplaceAction}, // Institution Code Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x0082},
+		DeleteOrEmptyOrReplaceAction,
+	}, // Institution Code Sequence
 	{tag.Tag{Group: 0x0008, Element: 0x0080}, DeleteOrEmptyOrReplaceAction}, // Institution Name
 	{tag.Tag{Group: 0x0008, Element: 0x1070}, DeleteOrEmptyOrReplaceAction}, // Operators' Name
-	{tag.Tag{Group: 0x0008, Element: 0x1111}, DeleteOrEmptyOrReplaceAction}, // Referenced Performed Procedure Step Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x1111},
+		DeleteOrEmptyOrReplaceAction,
+	}, // Referenced Performed Procedure Step Sequence
 	{tag.Tag{Group: 0x0008, Element: 0x1010}, DeleteOrEmptyOrReplaceAction}, // Station Name
 }
 
 // To be cleaned with UI as VR.
 // Or cleaned according to VR (XZU*)
 var XZUStar = []TBA{
-	{tag.Tag{Group: 0x0008, Element: 0x1140}, DeleteOrEmptyOrReplaceUIDAction}, // Referenced Image Sequence
-	{tag.Tag{Group: 0x0008, Element: 0x2112}, DeleteOrEmptyOrReplaceUIDAction}, // Source Image Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x1140},
+		DeleteOrEmptyOrReplaceUIDAction,
+	}, // Referenced Image Sequence
+	{
+		tag.Tag{Group: 0x0008, Element: 0x2112},
+		DeleteOrEmptyOrReplaceUIDAction,
+	}, // Source Image Sequence
 }
 
 var tags = append([]TBA{}, D...)

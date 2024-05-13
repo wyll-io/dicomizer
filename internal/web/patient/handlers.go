@@ -24,6 +24,11 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	if err := iCtxV.S3.DeletePatientFiles(ctx, fmt.Sprintf("%s/%s", iCtxV.Center, mux.Vars(r)["pk"])); err != nil {
+		webError.RedirectError(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
 }
 
 func search(w http.ResponseWriter, r *http.Request) {

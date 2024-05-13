@@ -145,15 +145,18 @@ If no arguments are provided, the server will use the environment variables:
 					Category: "CRON",
 					Usage:    "crontab to execute pacs check. E.g: \"* * * * *\"",
 					EnvVars:  []string{"CRONTAB"},
-          Required: true,
+					Required: true,
 				},
 			}, dicomFlags...),
 			Before: func(ctx *cli.Context) error {
-				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "center"}, ctx)
+				return checkMandatoryStringFlags(
+					[]string{"pacs", "aet", "aem", "aec", "center"},
+					ctx,
+				)
 			},
 			Action: func(ctx *cli.Context) error {
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
-				s3Client := s3.NewClient(awsCfg)
+				s3Client := s3.NewClient(awsCfg, "dicomizer")
 
 				s, err := scheduler.Create(
 					ctx.Context,
@@ -175,7 +178,10 @@ If no arguments are provided, the server will use the environment variables:
 				s.Start()
 
 				fmt.Printf("web server started at http://%s\n", ctx.String("bind"))
-				return http.ListenAndServe(ctx.String("bind"), web.RegisterHandlers(awsCfg, dbClient))
+				return http.ListenAndServe(
+					ctx.String("bind"),
+					web.RegisterHandlers(s3Client, dbClient, ctx.String("center")),
+				)
 			},
 		},
 		{
@@ -204,14 +210,19 @@ If no arguments are provided, the server will use the environment variables:
 					return fmt.Errorf("missing pk")
 				}
 
-				return checkMandatoryStringFlags([]string{"pacs", "aet", "aem", "aec", "center"}, ctx)
+				return checkMandatoryStringFlags(
+					[]string{"pacs", "aet", "aem", "aec", "center"},
+					ctx,
+				)
 			},
 			Action: func(ctx *cli.Context) error {
 				dbClient := database.New(awsCfg, ctx.String("dynamodb-table"))
-				s3Client := s3.NewClient(awsCfg)
+				s3Client := s3.NewClient(awsCfg, "dicomizer")
 				pk := ctx.Args().First()
 				if strings.Contains(pk, "PATIENT#") {
-					fmt.Println("prefix \"PATIENT#\" found in pk. It is not necessary to include it.")
+					fmt.Println(
+						"prefix \"PATIENT#\" found in pk. It is not necessary to include it.",
+					)
 					pk = strings.Replace(pk, "PATIENT#", "", 1)
 				}
 

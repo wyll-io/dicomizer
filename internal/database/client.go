@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -209,7 +210,7 @@ func (db DB) GetPatientInfo(ctx context.Context, pk string) (*dao.PatientInfo, e
 }
 
 func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.PatientInfo) error {
-  now := time.Now()
+	now := time.Now()
 	data.UpdatedAt = &now
 
 	updateEx := expression.Set(expression.Name("filters"), expression.Value(data.Filters)).
@@ -237,7 +238,62 @@ func (db DB) UpdatePatientInfo(ctx context.Context, pk string, data *dao.Patient
 	return err
 }
 
+// GetPatientRecords looks for all records for a given patient. It returns a list of
+// SK (INFO and DCM)
+func (db DB) GetPatientRecords(ctx context.Context, pk string) ([]map[string]interface{}, error) {
+	expr, err := expression.NewBuilder().
+		WithFilter(expression.Name("pk").Equal(expression.Value(pk))).
+		Build()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := db.Client.Scan(ctx, &dynamodb.ScanInput{
+		TableName:                 &db.Table,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	val := make([]map[string]interface{}, 0, res.Count)
+	if err := attributevalue.UnmarshalListOfMaps(res.Items, &val); err != nil {
+		return nil, err
+	}
+
+	return val, nil
+}
+
 func (db DB) DeletePatient(ctx context.Context, pk string) error {
+	if v := os.Getenv("AWS_DELETE_CASCADE"); v != "" && v == "yes" {
+		records, err := db.GetPatientRecords(ctx, pk)
+		if err != nil {
+			return err
+		}
+
+		for _, r := range records {
+			sk, ok := r["sk"]
+			if !ok {
+				return fmt.Errorf("SK field missing in record for patient %s", pk)
+			}
+
+			_, err := db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+				TableName: &db.Table,
+				Key: map[string]types.AttributeValue{
+					"pk": &types.AttributeValueMemberS{Value: pk},
+					"sk": &types.AttributeValueMemberS{Value: sk.(string)},
+				},
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
 	_, err := db.Client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		TableName: &db.Table,
 		Key: map[string]types.AttributeValue{

@@ -57,7 +57,17 @@ func scheduleFunc(
 	// TODO: to be parallelized
 	for _, pInfo := range pInfos {
 		fmt.Printf("Processing patient: \"%s\" (%s)\n", pInfo.Fullname, pInfo.PK)
-		err := check.CheckPatientDCM(ctx, storageClient, dbClient, pacs, aet, aec, aem, center, pInfo)
+		err := check.CheckPatientDCM(
+			ctx,
+			storageClient,
+			dbClient,
+			pacs,
+			aet,
+			aec,
+			aem,
+			center,
+			pInfo,
+		)
 		if err != nil {
 			fmt.Println(err)
 			return

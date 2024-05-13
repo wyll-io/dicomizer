@@ -6,37 +6,38 @@ import (
 )
 
 type Table struct {
-	PK        string    `dynamodbav:"pk"`
-	SK        string    `dynamodbav:"sk"`
-	Fullname  string    `dynamodbav:"fullname"`
-	Filters   string    `dynamodbav:"filters"`
-	Filename  string    `dynamodbav:"filename"`
-	CreatedAt time.Time `dynamodbav:"created_at"`
+	PK        string     `dynamodbav:"pk"`
+	SK        string     `dynamodbav:"sk"`
+	Fullname  string     `dynamodbav:"fullname"`
+	Filters   string     `dynamodbav:"filters"`
+	Filename  string     `dynamodbav:"filename"`
+	CreatedAt time.Time  `dynamodbav:"created_at"`
 	UpdatedAt *time.Time `dynamodbav:"updated_at"`
 	DeletedAt *time.Time `dynamodbav:"deleted_at"`
 }
 
 type PatientInfo struct {
-	PK        string    `dynamodbav:"pk"`
-	SK        string    `dynamodbav:"sk"`
-	Fullname  string    `dynamodbav:"fullname"`
-	Filters   string    `dynamodbav:"filters"`
-	CreatedAt time.Time `dynamodbav:"created_at"`
+	PK        string     `dynamodbav:"pk"`
+	SK        string     `dynamodbav:"sk"`
+	Fullname  string     `dynamodbav:"fullname"`
+	Filters   string     `dynamodbav:"filters"`
+	CreatedAt time.Time  `dynamodbav:"created_at"`
 	UpdatedAt *time.Time `dynamodbav:"updated_at"`
 	DeletedAt *time.Time `dynamodbav:"deleted_at"`
 }
 
 type DCMInfo struct {
-	PK        string    `dynamodbav:"pk"`
-	SK        string    `dynamodbav:"sk"`
-	Filename  string    `dynamodbav:"filename"`
-	CreatedAt time.Time `dynamodbav:"created_at"`
+	PK        string     `dynamodbav:"pk"`
+	SK        string     `dynamodbav:"sk"`
+	Filename  string     `dynamodbav:"filename"`
+	CreatedAt time.Time  `dynamodbav:"created_at"`
 	DeletedAt *time.Time `dynamodbav:"deleted_at"`
 }
 
 type DBActions interface {
 	GetPatientInfo(ctx context.Context, pk string) (*PatientInfo, error)
 	GetPatientsInfo(ctx context.Context) ([]PatientInfo, error)
+	GetPatientRecords(ctx context.Context, pk string) ([]map[string]interface{}, error)
 	SearchPatientInfo(ctx context.Context, fullname string) ([]PatientInfo, error)
 
 	AddPatientInfo(ctx context.Context, data *PatientInfo) error
